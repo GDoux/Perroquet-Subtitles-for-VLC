@@ -116,7 +116,7 @@ Inspiration :
 * Perroquet Team and Fred Bertolus for the original software Perroquet (https://launchpad.net/perroquet)
 
 Code snippet :
-* `Perroquet.lua` script was adapated from the "Subtitle Word Search" add-on (https://github.com/tcrespog/vlc-subtitle-word-search/) by Tomás Crespo
+* The `Perroquet.lua` script was adapted from the "Subtitle Word Search" add-on (https://github.com/tcrespog/vlc-subtitle-word-search/) by Tomás Crespo
 
 Other:
 * DomPizzie for the Simple README template (https://gist.github.com/DomPizzie/7a5ff55ffa9081f2de27c315f5018afc)
