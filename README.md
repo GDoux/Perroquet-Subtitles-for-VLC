@@ -33,8 +33,8 @@
   <p align="center">
     Train your listening comprehension by rewriting your favorite movies' subs (with correction)
     <br />
-    <a href="https://github.com/GDoux/Perroquet-Subtitles-for-VLC"><strong>Explore the docs »</strong></a>
     <br />
+    <a href="https://github.com/GDoux/Perroquet-Subtitles-for-VLC"><strong>Explore the docs »</strong></a>
     <br />
     <a href="https://github.com/GDoux/Perroquet-Subtitles-for-VLC">View Demo</a>
     ·
