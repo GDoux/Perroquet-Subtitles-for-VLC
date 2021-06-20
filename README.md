@@ -21,6 +21,12 @@ Assuming you have a movie/video file with a synced subtitle file (.srt) in origi
 Tested with :
   * VLC 3.0.8 Vetinari for Linux Ubuntu 18.04
 
+#### V1.1 [Not released]
+Will be tested with :
+  * VLC 3.0.8 Vetinari for Linux Ubuntu 18.04
+
+To be tested for Windows
+
 ### Installing
 
 Copy the `perroquet.lua` file into (depends on your OS) :
