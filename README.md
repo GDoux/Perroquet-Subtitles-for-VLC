@@ -19,11 +19,11 @@ Improve your listening and writing abilities in many languages and on a very lar
 
 ### Dependencies & Versions
 
-#### V1.0:
+##### V1.0:
 Tested with :
   * VLC 3.0.8 Vetinari for Linux Ubuntu 18.04
 
-#### V1.1 [Not released]
+##### V1.1 [Not released]
 Will be tested with :
   * VLC 3.0.8 Vetinari for Linux Ubuntu 18.04
 
@@ -40,11 +40,11 @@ Copy the <a href=https://github.com/GDoux/Perroquet-Subtitles-for-VLC/blob/main/
 ## Executing program
 
 #### Starting up
-Assuming you movie file is "MOVIE_FILE.avi" (or .mkv, .mp4, etc.) and that you have a synced "SUB_FOR_MOVIE_FILE.srt"
+Assuming you movie file is "MOVIE_FILE.avi" (or .mkv, .mp4, etc.) and that you have a synced subtitles file "SUB_FOR_MOVIE_FILE.srt"
 1) Rename "SUB_FOR_MOVIE_FILE.srt" to "MOVIE_FILE.perroquet" or "MOVIE_FILE[ANY_CHARACTERS].perroquet"
 2) Put the newly created "MOVIE_FILE.perroquet" file in the same folder as "MOVIE_FILE.avi"
-3) Make sure no .srt file or subs file named like "MOVIE_FILE[ANY_CHARACTERS].srt" and in the same folder as "MOVIE_FILE.avi" (or subs will appear in vlc...)
-4) Open "MOVIE_FILE.avi" with vlc
+3) Make sure no .srt file or subs file named like "MOVIE_FILE[ANY_CHARACTERS].srt" and in the same folder as "MOVIE_FILE.avi" (or subs will appear in VLC...)
+4) Open "MOVIE_FILE.avi" with VLC
 5) In the VLC toolbar, click on View , then on Perroquet Subtitles for VLC
 6) A new gui (window) should open
 
@@ -56,6 +56,8 @@ Then you should be able to do the following
 4) Check in the field under `(Re)play` button what you got and missed. Click on `(Re)play` if you want to hear the sequence again
 5) When you correctly write the sequence, VLC replays the sequence one last time and goes to the next sequence
 6) If you are stuck, click on `Help!`
+
+*Note : you can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window
 
 ## Help
 
