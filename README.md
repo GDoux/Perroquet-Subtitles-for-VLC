@@ -1,10 +1,16 @@
-# Project Title
+# Perroquet Subtitles for VLC
 
-Perroquet Subtitles for VLC
+Train your listening comprehension by rewriting your favorite movies' subs (with correction)
 
 ## Description
 
-Train your listening comprehension by rewriting your favorite movies' subs (with correction)
+This Lua extension for VLC enables you to practice your listening comprehension in a foreign language. 
+
+Assuming you have a movie/video file with a synced subtitle file (.srt) in original language (or at least in the same language as the sound track):
+
+* Perroquet Subtitles for VLC "cuts" the movie in sequences
+* In each sequence, try to understand what is said in the movie and write your guess in the input field
+* Perroquet compares what you guess with the actual subbtitles of the movie and helps you making progress
 
 ## Getting Started
 
