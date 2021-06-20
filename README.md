@@ -10,7 +10,8 @@ Assuming you have a movie/video file with a synced subtitle file (.srt) in origi
 
 * Perroquet Subtitles for VLC "cuts" the movie in sequences
 * In each sequence, you try to understand what is said in the movie and write your guess in the input field
-* Perroquet compares what you guess with the actual subbtitles of the movie and helps you making progress
+* Perroquet compares what you guessed with the actual subbtitles and tells you when you were right
+* You can replay sequences and get help when you are stuck
 
 ## Getting Started
 
