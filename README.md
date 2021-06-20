@@ -23,8 +23,11 @@ Tested with :
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+Copy the `perroquet.lua` file into (depends on your OS) :
+
+* Linux
+	* All users: `/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/extensions/
+	* Current user: `~/.local/share/vlc/lua/extensions/`
 
 ### Executing program
 
