@@ -100,11 +100,11 @@ Gaspard DOUXCHAMPS
     * Initial Release tested on linux
 
 * Main possible improvements:
-	* replace "freeze" by "wait" in (Re)play
-	* support and test srt file for better compatibility
-	* test and run on windows
-	* implement color code when "input" is getting close to "correction"
-	* translate this readme in other languages
+ * replace "freeze" by "wait" in (Re)play
+ * support and test srt file for better compatibility
+ * test and run on windows
+ * implement color code when "input" is getting close to "correction"
+ * translate this readme in other languages
 
 ## License
 
