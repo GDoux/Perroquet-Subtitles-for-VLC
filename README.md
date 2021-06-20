@@ -57,7 +57,7 @@ Then you should be able to do the following
 5) When you correctly write the sequence, VLC replays the sequence one last time and goes to the next sequence
 6) If you are stuck, click on `Help!`
 
-*Note : you can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window
+*Note : you can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window*
 
 ## Help
 
