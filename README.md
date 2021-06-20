@@ -37,52 +37,73 @@ Copy the <a href=https://github.com/GDoux/Perroquet-Subtitles-for-VLC/blob/main/
 	* All users: `/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/extensions/`
 	* Current user: `~/.local/share/vlc/lua/extensions/`
 
-### Executing program
+## Executing program
 
+#### Starting up
 Assuming you movie file is "MOVIE_FILE.avi" (or .mkv, .mp4, etc.) and that you have a synced "SUB_FOR_MOVIE_FILE.srt"
 1) Rename "SUB_FOR_MOVIE_FILE.srt" to "MOVIE_FILE.perroquet" or "MOVIE_FILE[ANY_CHARACTERS].perroquet"
 2) Put the newly created "MOVIE_FILE.perroquet" file in the same folder as "MOVIE_FILE.avi"
-3) Open "MOVIE_FILE.avi" with vlc
-4) In the VLC toolbar, click on View , then on Perroquet Subtitles for VLC
-5) A new gui (window) should opeb : start using!
+3) Make sure no .srt file or subs file named like "MOVIE_FILE[ANY_CHARACTERS].srt" and in the same folder as "MOVIE_FILE.avi" (or subs will appear in vlc...)
+4) Open "MOVIE_FILE.avi" with vlc
+5) In the VLC toolbar, click on View , then on Perroquet Subtitles for VLC
+6) A new gui (window) should open
 
-#### More details
-
-```
-code blocks for commands
-```
+#### Using
+Then you should be able to do the following
+1) Perroquet file is loaded by default, consult the Help section if you have error or encoding problems
+2) Pick a sequence with VLC or `<<` / `>>` buttons and click on `(Re)play`
+3) Fill what you understand in the Input field and click on `Try!` button
+4) Check in the field under `(Re)play` button what you got and missed. Click on `(Re)play` if you want to hear the sequence again
+5) When you correctly write the sequence, VLC replays the sequence one last time and goes to the next sequence
+6) If you are stuck, click on `Help!`
 
 ## Help
 
+### General
+* The program should support several encodings for the subtitles (files encoded in ISO-8859-1, UTF-8 and UTF-8-SIG were successfully tested). Please let me know if your sub file is not supported.
+* Although subtitle files seldom correspond exactly to the audio track, subs are almost always close enough to the track to still provide a good learning experience. Use the button `Help` when you feel the subs are different from the track.
+* Subs for deafened or hard or hearing person are usually very good files to train. They may however enhance non-verbal sounds in the track, usually with "(...)" such as in "(Indistinct chatter)"
+
 ### Subtitle files and settings:
 * If you have several ".Perroquet" files, select one of them in the drowdown list and click on load
-* If you have an error "Malformed subtitle...", try to change the UTF-8 encoding to another encoding
-* If you have unrecognized (weird
+* If you have an error "Malformed subtitle...", try to change the UTF-8 encoding to another encoding and click on load
+* If you have unrecognized/weird character such as � or Ã£, try to change the UTF-8 encoding to another encoding and click on load
+* If the sequence are too short or start too late (and you cannot hear the whole sequence), try to
+	* change the `Delay before` and `Delay After` (default to 1s) to a larger one
+	* manually change the synchronization  with `g` and `h` key in VLC
+
+### Other
+* In long sequences, VLC might show you a "Extension not responding message", you shoud ignore it.
+* In v1.0, the program uses a `repeat ... until ...` approach equivalent to a `freeze`, this is why you are advised not to do any action in the Perroquet Subtitles for VLC gui when replaying a sequence
 * How to run the program
 * Step-by-step bullets
-* Although subtitle files seldom correspond exactly to the audio track, subs are almost always close enough to the track to still provide  
-* The program should support several encodings for the subtitles (files encoded in ISO-8859-1, UTF-8 and UTF-8-SIG were successfully tested). Please let me know if your sub file is not supported.
-* 
 
-The program can be debugged 
+### Debugging
+
+The program can be debugged by running VLC in verbose mode. Under linux this means:
+```sh
+vlc --verbose=2
 ```
-command to run if program contains helper info
-```
 
-## Authors
+## Author
 
-Contributors names and contact info
-
-ex. Dominique Pizzie  
-ex. [@DomPizzie](https://twitter.com/dompizzie)
+Gaspard DOUXCHAMPS
 
 ## Version History
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
+* Planned 1.1
+    * Test on windows
+    * Translate Readme in French
+    
+* 1.0
+    * Initial Release tested on linux
+
+Main possible improvements:
+-replace "freeze" by "wait" in (Re)play
+-support and test srt file for better compatibility
+-test and run on windows
+-implement color code when "input" is getting close to "correction"
+-translate this readme in other languages
 
 ## License
 
@@ -90,9 +111,13 @@ This project is licensed under the GNU GPL v3 License - see the LICENSE.md file 
 
 ## Acknowledgments
 
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
+Inspiration :
+* Perroquet Team and Fred Bertolus for the original software Perroquet (https://launchpad.net/perroquet)
+
+Code snippet :
+* `Perroquet.lua` script was adapated from the "Subtitle Word Search" add-on (https://github.com/tcrespog/vlc-subtitle-word-search/) by Tomás Crespo
+
+Other:
+* DomPizzie for the Simple README template (https://gist.github.com/DomPizzie/7a5ff55ffa9081f2de27c315f5018afc)
+
+
