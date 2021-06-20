@@ -68,17 +68,16 @@ Then you should be able to do the following
 
 ### Subtitle files and settings:
 * If you have several ".Perroquet" files, select one of them in the drowdown list and click on load
-* If you have an error "Malformed subtitle...", try to change the UTF-8 encoding to another encoding and click on load
-* If you have unrecognized/weird character such as � or Ã£, try to change the UTF-8 encoding to another encoding and click on load
+* If you have an error "Malformed subtitle...", try to change the default UTF-8 encoding to another encoding in the dedicated Dropdown menu and click on load
+* If you have unrecognized/weird character such as � or Ã£, try to change the default UTF-8 encoding to another encoding in the dedicated Dropdown menu and click on load
 * If the sequence are too short or start too late (and you cannot hear the whole sequence), try to
 	* change the `Delay before` and `Delay After` (default to 1s) to a larger one
 	* manually change the synchronization  with `g` and `h` key in VLC
+	* resync your perroquet file with a dedicated tool
 
 ### Other
 * In long sequences, VLC might show you a "Extension not responding message", you shoud ignore it.
 * In v1.0, the program uses a `repeat ... until ...` approach equivalent to a `freeze`, this is why you are advised not to do any action in the Perroquet Subtitles for VLC gui when replaying a sequence
-* How to run the program
-* Step-by-step bullets
 
 ### Debugging
 
@@ -101,11 +100,11 @@ Gaspard DOUXCHAMPS
     * Initial Release tested on linux
 
 Main possible improvements:
--replace "freeze" by "wait" in (Re)play
--support and test srt file for better compatibility
--test and run on windows
--implement color code when "input" is getting close to "correction"
--translate this readme in other languages
+- replace "freeze" by "wait" in (Re)play
+- support and test srt file for better compatibility
+- test and run on windows
+- implement color code when "input" is getting close to "correction"
+- translate this readme in other languages
 
 ## License
 
