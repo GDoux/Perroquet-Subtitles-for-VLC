@@ -9,11 +9,11 @@ Credits: to Fred Bertolus and the Perroquet Team for the original software (http
 
 function descriptor()
 	return {
-		title = "Perroquet Subtitles for VLC",
-		version = "1.0",
+		title = "Perroquet1.1 Subtitles for VLC",
+		version = "1.1",
 		author = "Gaspard DOUXCHAMPS",
 		--url = "https://github.com/tcrespog/vlc-subtitle-word-search",
-		shortdesc = "Perroquet Subtitles for VLC",
+		shortdesc = "Perroquet1.1 Subtitles for VLC",
 		description = "Train your listening comprehension by rewriting your favorite movies' subs (with correction)",
 		capabilities = {}
 	}
@@ -22,14 +22,68 @@ end
 ---------- VLC entrypoints ----------
 
 function activate()
-	initialize_gui()
-	initialize_encodings()
-	initialize_subtitle_files()
-	load_subtitle_file()
+	os.setlocale("C", "all") -- just in case
+	Get_config()
+	if config and config.TIME then
+		cfg = config.TIME
+		cfg.start=false
+	end
+	local VLC_extraintf, VLC_luaintf, t, ti = VLC_intf_settings()
+	if not ti or VLC_luaintf~="perroquet_intf" then 
+		trigger_menu(2) 
+	else 
+		trigger_menu(1) 
+	end
 end
 
 function close()
 	vlc.deactivate();
+end
+
+----------Menu---------------
+
+function trigger_menu(id)
+	if self then
+		if self.dialog then
+			self.dialog:delete() 
+		end
+	end
+	if id==1 then -- Control panel
+		initialize_gui()
+		initialize_encodings()
+		initialize_subtitle_files()
+		load_subtitle_file()
+	elseif id==2 then -- Settings
+		self = Gui:new()
+		self.dialog = vlc.dialog("Perroquet for VLC")		
+		enable_extraintf = self.dialog:add_check_box("Enable interface: ", true,1,1,1,1)
+		ti_luaintf = self.dialog:add_text_input("perroquet_intf",2,1,2,1)
+		self.dialog:add_button("SAVE!", click_SAVE_settings,1,2,1,1)
+		self.dialog:add_button("CANCEL", click_CANCEL_settings,2,2,1,1)
+		--	lb_message = dlg:add_label("CLI options: --extraintf=luaintf --lua-intf="..intf_script,1,3,3,1)
+		local VLC_extraintf, VLC_luaintf, t, ti = VLC_intf_settings()
+		lb_message = self.dialog:add_label("Current status: " .. (ti and "ENABLED" or "DISABLED") .. " " .. tostring(VLC_luaintf),1,3,3,1)	
+	end
+end
+
+-----------INTF activation----------------
+function click_SAVE_settings()
+	local VLC_extraintf, VLC_luaintf, t, ti = VLC_intf_settings()
+
+	if enable_extraintf:get_checked() then
+		--vlc.config.set("extraintf", "luaintf")
+		if not ti then table.insert(t, "luaintf") end
+		vlc.config.set("lua-intf", ti_luaintf:get_text())
+	else
+		--vlc.config.set("extraintf", "")
+		if ti then table.remove(t, ti) end
+	end
+	vlc.config.set("extraintf", table.concat(t, ":"))
+	lb_message:set_text("Please restart VLC for changes to take effect!")
+end
+
+function click_CANCEL_settings()
+	trigger_menu(1)
 end
 
 ---------- Initialization functions ----------
@@ -45,6 +99,10 @@ current_subtitle_line=nil
 -- encodings {} Contains all encoding/decoding capabilities
 encodings={}
 
+config={}
+
+readable_words="([%wçã]+)"
+
 function initialize_gui()
 	gui = Gui.new()
 	gui:render()
@@ -52,7 +110,11 @@ end
 
 -- Generates the list of enconding/decoding capabilities
 function initialize_encodings() 
-	encodings = {"UTF-8", "UTF-8-SIG", "UTF-16", "ISO_8859-1", "none"}
+	if (is_unix_os()) then
+		encodings = {"UTF-8", "UTF-8-SIG", "UTF-16", "ISO_8859-1", "ISO_639-1"}
+	else
+		encodings = {"UTF-8", "UTF-8-SIG"}
+	end
 	gui:inject_encodings(encodings)
 end
 
@@ -60,7 +122,6 @@ end
 function initialize_subtitle_files()
 	local file_discoverer = SubtitleFileDiscoverer.new("perroquet")
 	local is_movie_opened = get_video_file_location()
-		print(is_movie_opened)
 	if (is_movie_opened) then
 		subtitle_files = file_discoverer:discover_files()
 		if (subtitle_files) then
@@ -87,7 +148,9 @@ function load_subtitle_file()
 		if (current_subtitle_file) then
 			local subtitle_delay = vlc.var.get(vlc.object.input(), "spu-delay")
 			local video_length = vlc.var.get(vlc.object.input(), "length")
-			local srt_reader = SrtReader.new(current_subtitle_file:get_path(), subtitle_delay, video_length)
+			local encoding_index=gui:get_selected_encoding_index()
+			local encoding=encodings[encoding_index]
+			local srt_reader = SrtReader.new(current_subtitle_file:get_path(), subtitle_delay, video_length, encoding)
 			local subtitle_lines, error_message = srt_reader:read()
 	
 			if (error_message) then
@@ -114,7 +177,6 @@ function capture_words_at_now()
 
 	local current_playing_timestamp = Timestamp.now()
 	current_subtitle_line = current_subtitle_file:search_line_at(current_playing_timestamp)
-
 	if (not current_subtitle_line) then
 		current_subtitle_line = current_subtitle_file:pick_closest_line(current_playing_timestamp)
 	end
@@ -170,6 +232,7 @@ end
 -- Gets the subs written by user in input field, update hidden words accordingly. If all words were found, replay the sequence and go to the next
 function user_input_subs()
 	local input_string=gui.input_subs:get_text()
+	--input_string=decode(gui.input_subs:get_text(),"UTF-8",2)
 	gonext=current_subtitle_line:update_hidden_table(input_string)
 	gui:update()
 	if gonext==1 then
@@ -194,17 +257,56 @@ function go_to_subtitle_timestamp()
 end
 
 -- Runs a video sequence between two times. Can be improved with a "wait" instead of a "freeze"
-function run(begin_time, finish_time)
+--[[function run(begin_time, finish_time)
 	vlc.var.set(vlc.object.input(), "time", begin_time)
 	vlc.playlist.play()
 	repeat
 		t=vlc.var.get(vlc.object.input(), "time") --sleep while running
 	until (finish_time < t)
 	vlc.playlist.pause()
+end]]
+
+function run(begin_time, finish_time)
+	cfg.start = true
+	cfg.begin_time = begin_time
+	cfg.finish_time=finish_time
+	vlc.var.set(vlc.object.input(), "time", begin_time)
+	vlc.playlist.play()
+	Set_config(cfg, "TIME")
+--	dlg:set_title(descriptor().title)
 end
 
 function help()
 	current_subtitle_line:reveal_all()
+end
+
+function Get_config()
+	local s = vlc.config.get("bookmark10")
+	if not s or not string.match(s, "^config={.*}$") then s = "config={}" end
+	assert(loadstring(s))() -- global var
+end
+
+function Set_config(cfg_table, cfg_title)
+	if not cfg_table then cfg_table={} end
+	if not cfg_title then cfg_title=descriptor().title end
+	Get_config()
+	config[cfg_title]=cfg_table
+	vlc.config.set("bookmark10", "config="..Serialize(config))
+end
+
+function Serialize(t)
+	if type(t)=="table" then
+		local s='{'
+		for k,v in pairs(t) do
+			if type(k)~='number' then k='"'..k..'"' end
+			s = s..'['..k..']='..Serialize(v)..',' -- recursion
+		end
+		return s..'}'
+	elseif type(t)=="string" then
+		return string.format("%q", t)
+	else --if type(t)=="boolean" or type(t)=="number" then
+		return tostring(t)
+	end
 end
 
 ---------- Classes ----------
@@ -560,7 +662,7 @@ SrtReader.READING_CONTENT = 2
 -- @param filepath {string} The path of the file to read.
 -- @param subtitle_delay {number} The subtitle delay in microseconds. Can be negative.
 -- @return {SrtReader} The SRT reader instance.
-function SrtReader.new(filepath, subtitle_delay, video_length_microseconds)
+function SrtReader.new(filepath, subtitle_delay, video_length_microseconds,encoding)
 	local self = setmetatable({}, SrtReader)
 	-- filepath {string} The path of the file to read.
 	self.filepath = filepath
@@ -568,6 +670,8 @@ function SrtReader.new(filepath, subtitle_delay, video_length_microseconds)
 	self.subtitle_delay = subtitle_delay
 	-- video_length_microseconds {number} The length of the video in microseconds.
 	self.video_length_microseconds = video_length_microseconds
+	-- enconding {string}, the encoding selected by user when loading
+	self.encoding = encoding
 	-- current_line_number {number} The line number of the text file being read.
 	self.current_line_number = 1
 	-- subtitle_lines {array<SubtitleLine>} The subtitle lines in the file.
@@ -592,19 +696,19 @@ function SrtReader:read()
 		return nil, error_message
 	end
 	self.current_subtitle_line = SubtitleLine.new()
+	self.current_subtitle_line.encoding = self.encoding
 	local index=0
 	for line in file:lines() do
 		index=index+1
-		local encoding_index=gui:get_selected_encoding_index()
-		local encoding=encodings[encoding_index]
-		if encoding=="none" then
+		line = remove_charset_signature(line,self.encoding,index)
+		--[[if encoding=="UTF-8" then
 		elseif encoding=="UTF-8-SIG" then
 			if index==1 then
 				line=string.sub(line,4,string.len(line))
 			end
 		else
 			line = vlc.strings.from_charset(encoding,line)
-		end
+		end]]
 		line= line .. " "
 		error_message = self:process_line(line)
 		if (error_message) then
@@ -668,6 +772,7 @@ function SrtReader:process_content(line)
 		end
 		self.current_state = SrtReader.READING_NUMBER
 		self.current_subtitle_line = SubtitleLine.new()
+		self.current_subtitle_line.encoding = self.encoding
 		return
 	end
 	self:read_content(line)
@@ -727,6 +832,7 @@ function SubtitleLine.new()
 	self.start = nil
 	-- finish {Timestamp} The finish timestamp of the appearance interval.
 	self.finish = nil
+	self.encoding = nil
 	-- content {string} The text content of the subtitle.
 	self.content = ""
 	self.hidden = ""
@@ -750,16 +856,14 @@ end
 -- Append content to the subtitle line.
 -- @param content {string} The text content to append.
 function SubtitleLine:append_content(content)
-	self.content = self.content .. content
+	self.content = self.content .. decode(content,self.encoding)
+	
 	local append = string.gsub(content,"[^%p%s]","_")
---	append = string.gsub(append,"%d","_")
 	self.hidden = self.hidden .. append
-	for i=1, string.len(append) do
-		if string.sub(append,i,i)==string.sub(content,i,i) then
-			table.insert(self.hidden_table,0)
-		else
-			table.insert(self.hidden_table,1)
-		end
+
+	self.hidden_table={}
+	for word in self.content:gmatch(readable_words) do
+		table.insert(self.hidden_table,1)
 	end
 end
 
@@ -767,52 +871,57 @@ end
 -- Compare word to word and set to 0 the  hidden_table index of guessed words
 -- Then reveal content
 function SubtitleLine:update_hidden_table(input)
-	for word_input in input:gmatch("(%w+)") do
-		for word_corre in self.content:gmatch("(%w+)") do
+	local index
+	for word_input in input:gmatch(readable_words) do
+		index = 0
+		for word_corre in self.content:gmatch(readable_words) do
+			index = index+1
 			if word_input:lower()==word_corre:lower() then
-				local ibeg=0
-				local iend=0
-				while (ibeg and iend) do
-					ibeg, iend=string.find(self.content,"%C?" .. word_corre .. "%C?",iend+1)
-					if (ibeg and iend) then
-					
-						for k=ibeg, iend do
-							table.insert(self.hidden_table,k,0)
-							table.remove(self.hidden_table,k+1)
-						end
-					end
-				end
-			end
-		end
+				self.hidden_table[index]=0
+			--print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> true")
+else
+			--print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> false")
+			end	
 	end
-	local gonext=self:reveal()
+	end
+	local gonext
+	gonext=self:update_hidden()
+	print(self.hidden)
+	self:reveal()
 	return gonext
 end
 
+function SubtitleLine:update_hidden()
+	--print(self.content)
+	self.hidden = self.content
+	local gonext=1
+	local index=0
+	for word in self.hidden:gmatch(readable_words) do
+		index=index+1
+		if self.hidden_table[index]==1 then
+			print(word .. " " .. self.hidden_table[index])
+			print(string.find(self.hidden,"(" .. word .. ")"))
+			self.hidden = string.gsub(self.hidden,"(%C?)(" .. word .. ")(%C?)", "%1" .. blank(word) .. "%3")
+			gonext=0
+		end
+	end
+	return gonext
+end
+	
+
 -- Sets all hidden table value to 0 (Help function)
 function SubtitleLine:reveal_all()
-	for i=1, string.len(current_subtitle_line.content) do
-		table.insert(current_subtitle_line.hidden_table,i,0)
-		table.remove(current_subtitle_line.hidden_table,i+1)
+	for k, v in ipairs(current_subtitle_line.hidden_table) do
+		current_subtitle_line.hidden_table[k]=0
 	end
-	current_subtitle_line:reveal()
+	self:update_hidden()
+	self:reveal()	
 end
 
 -- Rebuilds hidden subs according to hidden table, then inject results in the correction field
 -- when all words are guessed, returns the gonext parameters that triggers the navigate_forward_and_play() function when at 1
 function SubtitleLine:reveal()
-	self.hidden=""
-	local gonext=1
-	for i=1, string.len(self.content) do
-		if self.hidden_table[i]==1 then
-			self.hidden = self.hidden .. "_"
-			gonext = 0
-		else
-			self.hidden = self.hidden .. string.sub(self.content,i,i)
-		end
-	end
 	gui:inject_subtitle_words(self.hidden)
-	return gonext
 end
 
 -- Get the start timestamp of the appearance interval.
@@ -943,6 +1052,48 @@ end
 
 ---------- Utility functions ----------
 
+function VLC_intf_settings()
+	local VLC_extraintf = vlc.config.get("extraintf") -- enabled VLC interfaces
+	local VLC_luaintf = vlc.config.get("lua-intf") -- Lua Interface script name
+	local t={}
+	local ti=false
+	if VLC_extraintf then
+		t=split_string(VLC_extraintf, ":")
+		for i,v in ipairs(t) do
+			if v=="luaintf" then
+				ti=i
+				break
+			end
+		end
+	end
+	return VLC_extraintf, VLC_luaintf, t, ti
+end
+
+function split_string(s, d) -- string, delimiter pattern
+	local t={}
+	local i=1
+	local ss, j, k
+	local b=false
+	while true do
+		j,k = string.find(s,d,i)
+		if j then
+			ss=string.sub(s,i,j-1)
+			i=k+1
+		else
+			ss=string.sub(s,i)
+			b=true
+		end
+		table.insert(t, ss)
+		if b then break end
+	end
+	return t
+end
+
+function blank(string)
+	output, _ = string.gsub(string,".","_")
+	return output
+end
+
 -- Check if a string is a blank string (empty or only blanks).
 -- @param s {string} The string to check.
 -- @return {boolean} `true` if the string is a blank string, `false` otherwise.
@@ -952,6 +1103,27 @@ function is_blank(s)
 	end
 
 	return false
+end
+
+function decode(line,local_encoding)
+	local string
+	if (is_unix_os()) and (line) then 	
+		string = vlc.strings.from_charset(local_encoding,line)
+	elseif (line) then
+		string = line
+	end
+	return string
+end
+
+function remove_charset_signature(line,local_encoding,line_index_srt)
+	if local_encoding=="UTF-8-SIG" then
+		if line_index_srt==1 then
+			string=string.sub(line,4,string.len(line))
+		end
+	else
+		string = line
+	end
+	return string
 end
 
 -- Check if the current operating system is Unix-like.
