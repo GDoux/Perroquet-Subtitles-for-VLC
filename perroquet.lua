@@ -16,7 +16,7 @@ function descriptor()
 		version = "1.1",
 		author = "Gaspard DOUXCHAMPS",
 		--url = "https://github.com/tcrespog/vlc-subtitle-word-search",
-		shortdesc = "Perroquet1.1 Subtitles for VLC",
+		shortdesc = "Perroquet Subtitles for VLC",
 		description = "Train your listening comprehension by rewriting your favorite movies' subs (with correction)",
 		capabilities = {}
 	}
