@@ -1,5 +1,4 @@
---[[
-Program: Perroquet Subtitles for VLC
+--[[Program: Perroquet Subtitles for VLC
 Purpose: Train your listening comprehension by rewriting your favorite movies' subs (with correction)
 Author: Gaspard DOUXCHAMPS
 License: GNU GENERAL PUBLIC LICENSE
@@ -27,6 +26,8 @@ function activate()
 	if config and config.TIME then
 		cfg = config.TIME
 		cfg.start=false
+	else
+		vlc.msg.err("config not loaded")
 	end
 	local VLC_extraintf, VLC_luaintf, t, ti = VLC_intf_settings()
 	if not ti or VLC_luaintf~="perroquet_intf" then 
@@ -497,7 +498,7 @@ function SubtitleFileDiscoverer:find_matching_filenames(target_filename, filenam
 
 	for index, candidate_filename in ipairs(filename_listing) do
 		local has_name = candidate_filename:find(target_filename, 1, true)
-		local has_extension = candidate_filename:find("%." .. self.extension .. "$")
+		local has_extension = candidate_filename:find("%." .. self.extension)
 
 		if (has_name and has_extension) then
 			matching_filenames[#matching_filenames + 1] = candidate_filename
@@ -878,10 +879,11 @@ function SubtitleLine:update_hidden_table(input)
 			index = index+1
 			if word_input:lower()==word_corre:lower() then
 				self.hidden_table[index]=0
-			--print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> true")
+			print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> true")
 else
-			--print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> false")
+			print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> false")
 			end	
+			print(self.hidden_table[index])
 	end
 	end
 	local gonext
@@ -896,13 +898,16 @@ function SubtitleLine:update_hidden()
 	self.hidden = self.content
 	local gonext=1
 	local index=0
-	for word in self.hidden:gmatch(readable_words) do
+	for word in self.content:gmatch(readable_words) do
+		local pattern={{"(%W+)(" .. word .. ")(%W+)","%1" .. blank(word) .. "%3"},{"^(" .. word .. ")(%W+)", blank(word) .. "%2"},{"(%W+)(" .. word .. ")$","%1" .. blank(word)}}
 		index=index+1
 		if self.hidden_table[index]==1 then
-			print(word .. " " .. self.hidden_table[index])
-			print(string.find(self.hidden,"(" .. word .. ")"))
-			self.hidden = string.gsub(self.hidden,"(%C?)(" .. word .. ")(%C?)", "%1" .. blank(word) .. "%3")
-			gonext=0
+			for i = 1, 3 do
+    				if string.find(self.hidden,pattern[i][1]) then
+					self.hidden = string.gsub(self.hidden,pattern[i][1], pattern[i][2])
+					gonext=0
+				end
+			end
 		end
 	end
 	return gonext
