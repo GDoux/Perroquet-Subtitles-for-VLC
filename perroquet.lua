@@ -9,6 +9,7 @@ Credits: to Fred Bertolus and the Perroquet Team for the original software (http
 
 config = {}
 local cfg = {}
+
 function descriptor()
 	return {
 		title = "Perroquet Subtitles for VLC",
@@ -105,7 +106,9 @@ encodings={}
 
 config={}
 
-readable_words="([%wçã]+)"
+--readable_char="([%wçã]+)"
+readable_char="([%wçÀ-ÿæœÆŒß]+)"
+word_recogn_char= "([^%w^ç^À-ÿ^æ^œ^Æ^Œ^ß]+)"
 
 function initialize_gui()
 	gui = Gui.new()
@@ -871,7 +874,7 @@ function SubtitleLine:append_content(content)
 	self.hidden = self.hidden .. append
 
 	self.hidden_table={}
-	for word in self.content:gmatch(readable_words) do
+	for word in self.content:gmatch(readable_char) do
 		table.insert(self.hidden_table,1)
 	end
 end
@@ -881,9 +884,9 @@ end
 -- Then reveal content
 function SubtitleLine:update_hidden_table(input)
 	local index
-	for word_input in input:gmatch(readable_words) do
+	for word_input in input:gmatch(readable_char) do
 		index = 0
-		for word_corre in self.content:gmatch(readable_words) do
+		for word_corre in self.content:gmatch(readable_char) do
 			index = index+1
 			if word_input:lower()==word_corre:lower() then
 				self.hidden_table[index]=0
@@ -895,7 +898,6 @@ else
 	end
 	local gonext
 	gonext=self:update_hidden()
-	print(self.hidden)
 	self:reveal()
 	return gonext
 end
@@ -905,8 +907,10 @@ function SubtitleLine:update_hidden()
 	self.hidden = self.content
 	local gonext=1
 	local index=0
-	for word in self.content:gmatch(readable_words) do
-		local pattern={{"(%W+)(" .. word .. ")(%W+)","%1" .. blank(word) .. "%3"},{"^(" .. word .. ")(%W+)", blank(word) .. "%2"},{"(%W+)(" .. word .. ")$","%1" .. blank(word)}}
+--[[	for word in self.content:gmatch(readable_words) do
+		local pattern={{"(%W+)(" .. word .. ")(%W+)","%1" .. blank(word) .. "%3"},{"^(" .. word .. ")(%W+)", blank(word) .. "%2"},{"(%W+)(" .. word .. ")$","%1" .. blank(word)}}]]
+	for word in self.content:gmatch(readable_char) do
+		local pattern={{word_recogn_char .. "(" .. word .. ")" .. word_recogn_char,"%1" .. blank(word) .. "%3"},{"^(" .. word .. ")" .. word_recogn_char, blank(word) .. "%2"},{word_recogn_char .. "(" .. word .. ")$","%1" .. blank(word)}}
 		index=index+1
 		if self.hidden_table[index]==1 then
 			for i = 1, 3 do
@@ -1131,6 +1135,8 @@ function remove_charset_signature(line,local_encoding,line_index_srt)
 	if local_encoding=="UTF-8-SIG" then
 		if line_index_srt==1 then
 			string=string.sub(line,4,string.len(line))
+		else
+			string = line
 		end
 	else
 		string = line
