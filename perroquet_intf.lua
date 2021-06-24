@@ -1,4 +1,5 @@
-os.setlocale("C", "all") -- fixes numeric locale issue on Mac
+os.setlocale("C", "all")
+
 config={}
 config.TIME={} -- subtable reserved for TIME extension
 

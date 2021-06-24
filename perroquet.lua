@@ -1,4 +1,5 @@
---[[Program: Perroquet Subtitles for VLC
+--[[
+Program: Perroquet Subtitles for VLC
 Purpose: Train your listening comprehension by rewriting your favorite movies' subs (with correction)
 Author: Gaspard DOUXCHAMPS
 License: GNU GENERAL PUBLIC LICENSE
@@ -6,9 +7,11 @@ Release-Date: 20/06/2021
 Credits: to Fred Bertolus and the Perroquet Team for the original software (https://launchpad.net/perroquet) and to Tomás Crespo for the "Subtitle Word Search" add-on (https://addons.videolan.org/p/1154033/)
 ]]
 
+config = {}
+local cfg = {}
 function descriptor()
 	return {
-		title = "Perroquet1.1 Subtitles for VLC",
+		title = "Perroquet Subtitles for VLC",
 		version = "1.1",
 		author = "Gaspard DOUXCHAMPS",
 		--url = "https://github.com/tcrespog/vlc-subtitle-word-search",
@@ -23,7 +26,7 @@ end
 function activate()
 	os.setlocale("C", "all") -- just in case
 	Get_config()
-	if config and config.TIME then
+	if (config) and (config.TIME) then
 		cfg = config.TIME
 		cfg.start=false
 	else
@@ -283,7 +286,12 @@ end
 
 function Get_config()
 	local s = vlc.config.get("bookmark10")
-	if not s or not string.match(s, "^config={.*}$") then s = "config={}" end
+	if not s or not string.match(s, "^config={.*}$") then 
+		s = "config={}"
+		vlc.msg.err(s)
+	else
+		vlc.msg.err("temoin") 
+	end
 	assert(loadstring(s))() -- global var
 end
 
@@ -879,11 +887,10 @@ function SubtitleLine:update_hidden_table(input)
 			index = index+1
 			if word_input:lower()==word_corre:lower() then
 				self.hidden_table[index]=0
-			print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> true")
+			--print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> true")
 else
-			print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> false")
+			--print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> false")
 			end	
-			print(self.hidden_table[index])
 	end
 	end
 	local gonext
