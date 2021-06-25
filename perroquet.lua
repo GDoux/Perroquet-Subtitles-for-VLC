@@ -30,8 +30,6 @@ function activate()
 	if (config) and (config.TIME) then
 		cfg = config.TIME
 		cfg.start=false
-	else
-		vlc.msg.err("config not loaded")
 	end
 	local VLC_extraintf, VLC_luaintf, t, ti = VLC_intf_settings()
 	if not ti or VLC_luaintf~="perroquet_intf" then 
@@ -118,7 +116,7 @@ end
 -- Generates the list of enconding/decoding capabilities
 function initialize_encodings() 
 	if (is_unix_os()) then
-		encodings = {"UTF-8", "UTF-8-SIG", "UTF-16", "ISO_8859-1", "ISO_639-1"}
+		encodings = {"UTF-8", "UTF-8-SIG", "ISO_8859-1", "ISO_8859-1-SIG"}
 	else
 		encodings = {"UTF-8", "UTF-8-SIG"}
 	end
@@ -239,7 +237,6 @@ end
 -- Gets the subs written by user in input field, update hidden words accordingly. If all words were found, replay the sequence and go to the next
 function user_input_subs()
 	local input_string=gui.input_subs:get_text()
-	--input_string=decode(gui.input_subs:get_text(),"UTF-8",2)
 	gonext=current_subtitle_line:update_hidden_table(input_string)
 	gui:update()
 	if gonext==1 then
@@ -291,9 +288,6 @@ function Get_config()
 	local s = vlc.config.get("bookmark10")
 	if not s or not string.match(s, "^config={.*}$") then 
 		s = "config={}"
-		vlc.msg.err(s)
-	else
-		vlc.msg.err("temoin") 
 	end
 	assert(loadstring(s))() -- global var
 end
@@ -869,14 +863,12 @@ end
 -- @param content {string} The text content to append.
 function SubtitleLine:append_content(content)
 	self.content = self.content .. decode(content,self.encoding)
-	
-	local append = string.gsub(content,"[^%p%s]","_")
-	self.hidden = self.hidden .. append
-
 	self.hidden_table={}
 	for word in self.content:gmatch(readable_char) do
 		table.insert(self.hidden_table,1)
 	end
+	
+	self:update_hidden()
 end
 
 -- Update the hidden table of a subtitle line(0 for show, 1 for hide) according to input.
@@ -903,7 +895,6 @@ else
 end
 
 function SubtitleLine:update_hidden()
-	--print(self.content)
 	self.hidden = self.content
 	local gonext=1
 	local index=0
@@ -1122,17 +1113,47 @@ function is_blank(s)
 end
 
 function decode(line,local_encoding)
+    local output_string=""
+    local error=0
+    if (line) then
+        if local_encoding=="ISO_8859-1" or local_encoding=="ISO_8859-1-SIG" then
+            for letter in line:gmatch("(.)") do
+                if string.byte(letter)>255 then
+                    output_string = output_string .. letter
+                elseif string.byte(letter)>127 and string.byte(letter)< 256 then
+                    --print(byteuni_from_byteiso(string.byte(letter)))
+                    output_string=output_string .. string.char(byteuni_from_byteiso(string.byte(letter)))
+                elseif (string.byte(letter,1)) then
+                    output_string = output_string .. letter
+                else 
+                    error=1
+                end
+            end
+        else
+            output_string = line
+        end	
+    elseif (line) then
+		output_string = line
+	end
+	return output_string
+end
+
+--[[function decode(line,local_encoding)
 	local string
-	if (is_unix_os()) and (line) then 	
-		string = vlc.strings.from_charset(local_encoding,line)
+	if (is_unix_os()) and (line) then
+		if local_encoding=="ISO_8859-1" then
+			string = vlc.strings.from_charset(local_encoding,line)
+		else
+			string = line
+		end	
 	elseif (line) then
 		string = line
 	end
 	return string
-end
+end]]
 
 function remove_charset_signature(line,local_encoding,line_index_srt)
-	if local_encoding=="UTF-8-SIG" then
+	if local_encoding=="UTF-8-SIG" or local_encoding=="ISO_8859-1-SIG" then
 		if line_index_srt==1 then
 			string=string.sub(line,4,string.len(line))
 		else
@@ -1192,4 +1213,34 @@ function get_video_file_location()
 		local directory_path, filename = decoded_media_uri:match("^file:///(.+/)(.+%..+)$")
 		return directory_path, filename
 	end
+end
+
+function byteuni_from_byteiso(n)
+    local table = {{128, 194, 128},{129, 194, 129},{130, 194, 130},{131, 194, 131},{132, 194, 132},
+{133, 194, 133},{134, 194, 134},{135, 194, 135},{136, 194, 136},{137, 194, 137},
+{138, 194, 138},{139, 194, 139},{140, 194, 140},{141, 194, 141},{142, 194, 142},
+{143, 194, 143},{144, 194, 144},{145, 194, 145},{146, 194, 146},{147, 194, 147},
+{148, 194, 148},{149, 194, 149},{150, 194, 150},{151, 194, 151},{152, 194, 152},
+{153, 194, 153},{154, 194, 154},{155, 194, 155},{156, 194, 156},{157, 194, 157},
+{158, 194, 158},{159, 194, 159},{160, 194, 160},{161, 194, 161},{162, 194, 162},
+{163, 194, 163},{164, 194, 164},{165, 194, 165},{166, 194, 166},{167, 194, 167},
+{168, 194, 168},{169, 194, 169},{170, 194, 170},{171, 194, 171},{172, 194, 172},
+{173, 194, 173},{174, 194, 174},{175, 194, 175},{176, 194, 176},{177, 194, 177},
+{178, 194, 178},{179, 194, 179},{180, 194, 180},{181, 194, 181},{182, 194, 182},
+{183, 194, 183},{184, 194, 184},{185, 194, 185},{186, 194, 186},{187, 194, 187},
+{188, 194, 188},{189, 194, 189},{190, 194, 190},{191, 194, 191},{192, 195, 128},
+{193, 195, 129},{194, 195, 130},{195, 195, 131},{196, 195, 132},{197, 195, 133},
+{198, 195, 134},{199, 195, 135},{200, 195, 136},{201, 195, 137},{202, 195, 138},
+{203, 195, 139},{204, 195, 140},{205, 195, 141},{206, 195, 142},{207, 195, 143},
+{208, 195, 144},{209, 195, 145},{210, 195, 146},{211, 195, 147},{212, 195, 148},
+{213, 195, 149},{214, 195, 150},{215, 195, 151},{216, 195, 152},{217, 195, 153},
+{218, 195, 154},{219, 195, 155},{220, 195, 156},{221, 195, 157},{222, 195, 158},
+{223, 195, 159},{224, 195, 160},{225, 195, 161},{226, 195, 162},{227, 195, 163},
+{228, 195, 164},{229, 195, 165},{230, 195, 166},{231, 195, 167},{232, 195, 168},
+{233, 195, 169},{234, 195, 170},{235, 195, 171},{236, 195, 172},{237, 195, 173},
+{238, 195, 174},{239, 195, 175},{240, 195, 176},{241, 195, 177},{242, 195, 178},
+{243, 195, 179},{244, 195, 180},{245, 195, 181},{246, 195, 182},{247, 195, 183},
+{248, 195, 184},{249, 195, 185},{250, 195, 186},{251, 195, 187},{252, 195, 188},
+{253, 195, 189},{254, 195, 190},{255, 195, 191}}
+    return table[n-127][2], table[n-127][3]
 end
