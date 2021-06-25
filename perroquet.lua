@@ -118,7 +118,7 @@ function initialize_encodings()
 	if (is_unix_os()) then
 		encodings = {"UTF-8", "UTF-8-SIG", "ISO_8859-1", "ISO_8859-1-SIG"}
 	else
-		encodings = {"UTF-8", "UTF-8-SIG"}
+		encodings = {"UTF-8", "UTF-8-SIG", "ISO_8859-1", "ISO_8859-1-SIG"}
 	end
 	gui:inject_encodings(encodings)
 end
@@ -271,11 +271,13 @@ end
 end]]
 
 function run(begin_time, finish_time)
-	cfg.start = true
 	cfg.begin_time = begin_time
 	cfg.finish_time=finish_time
+	cfg.start = true
+	Set_config(cfg, "TIME")
 	vlc.var.set(vlc.object.input(), "time", begin_time)
 	vlc.playlist.play()
+	cfg.start = false
 	Set_config(cfg, "TIME")
 --	dlg:set_title(descriptor().title)
 end
@@ -293,8 +295,17 @@ function Get_config()
 end
 
 function Set_config(cfg_table, cfg_title)
-	if not cfg_table then cfg_table={} end
-	if not cfg_title then cfg_title=descriptor().title end
+	if not cfg_table then 
+		cfg_table={} 
+	end
+	if not cfg_title then 
+		cfg_title=descriptor().title 
+	end
+	if cfg.start then
+		vlc.msg.err("start")
+	else
+		vlc.msg.err("stop")
+	end
 	Get_config()
 	config[cfg_title]=cfg_table
 	vlc.config.set("bookmark10", "config="..Serialize(config))
