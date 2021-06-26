@@ -41,29 +41,29 @@ Tested with:
 Copy the <a href=https://github.com/GDoux/Perroquet-Subtitles-for-VLC/blob/main/perroquet.lua> perroquet.lua </a> and <a href=https://github.com/GDoux/Perroquet-Subtitles-for-VLC/blob/main/perroquet_intf.lua> perroquet_intf.lua </a> files to the following folders (depends on your OS) :
 
 * Windows
- * All Users:
-  * perroquet.lua in	Program Files\VideoLAN\VLC\lua\extensions\
-  * perroquet_intf.lua in	Program Files\VideoLAN\VLC\lua\intf\
- * Current user: [not tested]
-  * perroquet.lua in 	%APPDATA%\vlc\lua\extensions\
-  * perroquet_intf.lua in	%APPDATA%\vlc\lua\extensions\
+    * All Users:
+          * perroquet.lua in	Program Files\VideoLAN\VLC\lua\extensions\
+          * perroquet_intf.lua in	Program Files\VideoLAN\VLC\lua\intf\
+    * Current user: [not tested]
+          * perroquet.lua in 	%APPDATA%\vlc\lua\extensions\
+          * perroquet_intf.lua in	%APPDATA%\vlc\lua\extensions\
 * Mac OS X [not tested]
- * All Users:
-  * perroquet.lua in	/Applications/VLC.app/Contents/MacOS/share/lua/extensions/
-  * perroquet_intf.lua in	/Applications/VLC.app/Contents/MacOS/share/lua/intf/
- * Current user:
-  * perroquet.lua in 	/Users/%your_name%/Library/ApplicationSupport/org.videolan.vlc/lua/extensions/
-  * perroquet_intf.lua in	/Users/%your_name%/Library/ApplicationSupport/org.videolan.vlc/lua/intf/
+    * All Users:
+          * perroquet.lua in	/Applications/VLC.app/Contents/MacOS/share/lua/extensions/
+          * perroquet_intf.lua in	/Applications/VLC.app/Contents/MacOS/share/lua/intf/
+    * Current user:
+          * perroquet.lua in 	/Users/%your_name%/Library/ApplicationSupport/org.videolan.vlc/lua/extensions/
+          * perroquet_intf.lua in	/Users/%your_name%/Library/ApplicationSupport/org.videolan.vlc/lua/intf/
 * Linux (you may have to `chmod 755` the files)
- * All Users:
-  * perroquet.lua in	/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/extensions/
-  * perroquet_intf.lua in	/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/intf/
- * Current user: [not tested]
-  * perroquet.lua in 	~/.local/share/vlc/lua/extensions/
-  * perroquet_intf.lua in	~/.local/share/vlc/lua/intf/
- * Snap: (the number 2288 maybe different on your system)
-  * perroquet.lua in 	~/snap/vlc/2288/.local/share/vlc/lua/extensions/
-  * perroquet_intf.lua in	~/snap/vlc/2288/.local/share/vlc/lua/intf/
+    * All Users:
+          * perroquet.lua in	/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/extensions/
+          * perroquet_intf.lua in	/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/intf/
+    * Current user: [not tested]
+          * perroquet.lua in 	~/.local/share/vlc/lua/extensions/
+          * perroquet_intf.lua in	~/.local/share/vlc/lua/intf/
+    * Snap: (the number 2288 maybe different on your system)
+          * perroquet.lua in 	~/snap/vlc/2288/.local/share/vlc/lua/extensions/
+          * perroquet_intf.lua in	~/snap/vlc/2288/.local/share/vlc/lua/intf/
 		
 Then open VLC and select `Perroquet Subtitles for VLC` in the `view` menu. Click on `SAVE` and restart VLC.
 
