@@ -89,8 +89,8 @@ Then you should be able to do the following
 6) If you are stuck, click on `Help!`
 
 * Notes: 
-    * files like "MOVIE_FILE[ANY_CHARACTERS].perroquet.srt" are also accepted but you may have to deactivate the sub tracks in VLC interface.
-    * you can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window*
+    * Files like "MOVIE_FILE[ANY_CHARACTERS].perroquet.srt" are also accepted but you may have to deactivate the sub tracks in VLC interface.
+    * You can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window*
  
 ## Help
 
@@ -138,8 +138,8 @@ Gaspard DOUXCHAMPS
     * Initial Release tested on linux
 
 * Main possible improvements:
-    * support and test srt file for better compatibility
-    * implement color code when "input" is getting close to "correction"
+    * Support and test srt file for better compatibility
+    * Implement color code when "input" is getting close to "correction"
 
 ## License
 
