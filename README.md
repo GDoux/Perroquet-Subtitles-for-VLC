@@ -99,9 +99,9 @@ Then you should be able to do the following
 * Subs for deafened or hard or hearing person are usually very good files to train. They may however enhance non-verbal sounds in the track, usually with "(...)" such as in "(Indistinct chatter)"
 
 ### Subtitle files and settings:
-* If you have several ".perroquet" files, select one of them in the drowdown list and click on load
-* If you have an error "Malformed subtitle...", try to change the default UTF-8 encoding to "UTF-8-SIG" or "ISO_8859-1-SIG" in the dedicated Dropdown menu. Then click on load.
-* If you have unrecognized/weird character such as � or Ã£, try to change the default UTF-8 encoding to "ISO_8859-1" in the dedicated Dropdown menu. Then click on load
+* If you have several ".perroquet" files, select one of them in the drowdown list and click on `Load`
+* If you have an error "Malformed subtitle...", try to change the default UTF-8 encoding to "UTF-8-SIG" or "ISO_8859-1-SIG" in the dedicated Dropdown menu. Then click on `Load`.
+* If you have unrecognized/weird character such as � or Ã£, try to change the default UTF-8 encoding to "ISO_8859-1" in the dedicated Dropdown menu. Then click on `Load`
 * If the sequence are too short or start too late (and you cannot hear the whole sequence), try to
 	* change the `Delay before` and `Delay After` (default to 1s) to a larger one
 	* manually change the synchronization  with `g` and `h` key in VLC
@@ -209,24 +209,24 @@ Vous devriez alors pouvoir exécutez les actions suivantes
 * Les sous-titres pour personnes sourdes et malentendantes sont généralement de très bons fichiers pour pratiquer. Ces derniers peuvent cependant transcrire des sons non verbaux, généralement mis en évidence par des "(...)"
 
 ### Fichiers de sous-titres et configurations:
-* Si vous avez plusieurs fichiers ".perroquet" files, select one of them in the drowdown list and click on load
-* If you have an error "Malformed subtitle...", try to change the default UTF-8 encoding to "UTF-8-SIG" or "ISO_8859-1-SIG" in the dedicated Dropdown menu. Then click on load.
-* If you have unrecognized/weird character such as � or Ã£, try to change the default UTF-8 encoding to "ISO_8859-1" in the dedicated Dropdown menu. Then click on load
-* If the sequence are too short or start too late (and you cannot hear the whole sequence), try to
-	* change the `Delay before` and `Delay After` (default to 1s) to a larger one
-	* manually change the synchronization  with `g` and `h` key in VLC
-	* resync your original srt file with a dedicated tool
+* Si vous avez plusieurs fichiers ".perroquet" files, sélectionnez l'un d'entre eux dans la liste déroulante puis cliquez sur `Load`
+* Si vous avez une erreur du type "Malformed subtitle...", essayez de modifier l'encodage par défaut UTF-8 en "UTF-8-SIG" ou "ISO_8859-1-SIG" dans la liste déroulante. Puis cliquez sur `Load`.
+* Si vous voyez des caractères mal encodés tels que � or Ã£, essayez de changer l'encodage par défaut UTF-8 en "ISO_8859-1" dans la liste déroulante. Puis cliquez sur `Load`
+* Si la séquence est trop courte ou commence trop tard (et que vous ne pouvez pas entendre la séquence complète), essayez de 
+	* Changer les paramètres `Delay before` et `Delay After` (par défaut à 1s) par des valeurs plus grandes
+	* Changer manuellement la synchronisation dans VLC avec les touches `g` and `h` dans VLC
+	* Resynchroniser votre fichier .srt original avec un outil adéquat.
 
-### Other
-If you want to deactivate the Perroquet_intf interface, go to Tools> Preferences and select "All" under `show settings` bullet. Then go to Interface> Main interface> Lua and delete the field `Lua interface`. Save and restart vlc.
+### Autres
+Si vous voulez désactiver l'interface Perroquet_intf, allez dans Outils> Préférences et sélectionnez "Tous" dans `Afficher les paramètres`. Puis allez dans Interface> Interfaces Principales et effacez le champs `Interface Lua`. Enregistrez et redémarrez VLC.
 
-### Debugging
+### Débugage
 
-The program can be debugged by running VLC in verbose mode. Under linux this means:
+Le programme peut être debugé en démarrant VLC en mode verbose. Sous Linux cela donne:
 ```sh
 vlc --verbose=2
 ```
-Under windows: open VLC, then `ctrl+M` and change verbosity to 2.
+Sous windows: ouvrez VLC, puis `ctrl+M` et changez la "verbosity" à 2.
 
 # MISCELLANEOUS
 
