@@ -81,7 +81,7 @@ Assuming you movie file is "MOVIE_FILE.avi" (or .mkv, .mp4, etc.) and that you h
 
 #### Using
 Then you should be able to do the following
-1) Perroquet file is loaded by default, consult the Help section if you have error or encoding problems
+1) The .perroquet file is loaded by default, consult the Help section if you have error or encoding problems
 2) Pick a sequence with VLC or `<<` / `>>` buttons and click on `(Re)play`
 3) Fill what you understand in the Input field and click on `Try!` button
 4) Check in the field under `(Re)play` button what you got and missed. Click on `(Re)play` if you want to hear the sequence again
@@ -90,7 +90,6 @@ Then you should be able to do the following
 
 * Notes: 
     * Files like "MOVIE_FILE[ANY_CHARACTERS].perroquet.srt" are also accepted but you may have to deactivate the sub tracks in VLC interface.
-    * You can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window*
  
 ## Help
 
@@ -100,7 +99,7 @@ Then you should be able to do the following
 * Subs for deafened or hard or hearing person are usually very good files to train. They may however enhance non-verbal sounds in the track, usually with "(...)" such as in "(Indistinct chatter)"
 
 ### Subtitle files and settings:
-* If you have several ".Perroquet" files, select one of them in the drowdown list and click on load
+* If you have several ".perroquet" files, select one of them in the drowdown list and click on load
 * If you have an error "Malformed subtitle...", try to change the default UTF-8 encoding to "UTF-8-SIG" or "ISO_8859-1-SIG" in the dedicated Dropdown menu. Then click on load.
 * If you have unrecognized/weird character such as � or Ã£, try to change the default UTF-8 encoding to "ISO_8859-1" in the dedicated Dropdown menu. Then click on load
 * If the sequence are too short or start too late (and you cannot hear the whole sequence), try to
@@ -120,6 +119,114 @@ vlc --verbose=2
 Under windows: open VLC, then `ctrl+M` and change verbosity to 2.
 
 # FRANÇAIS
+
+## Présentation
+
+Cette extension Lua pour VLC vous permet de pratiquer votre compréhension orale dans la/les langue(s) que vous apprenez.
+
+A partir d'une copie d'une vidéo ou d'un film en votre possession et accompagné d'un fichier (.srt) de sous-titres synchronisé dans la langue originale (ou dans la même langue que la bande son):
+
+* Perroquet Subtitles for VLC "découpe" votre film en séquence
+* Pour chaque séquence, vous écrivez ce que vous comprenez dans le champs "input"
+* Perroquet compare ce que vous avez deviné avec les véritables sous-titres et vous aide a progresser.
+* Vous pouvez rejouer les séquences et obtenir de l'aide quand vous êtes bloqués
+
+Améliorez votre compréhension orale et votre orthographe dans de nombreux langages et sur un large panel de fichiers vidéos et audios !
+
+## Premiers pas
+
+### Versions
+
+##### <strong>V1.1
+Testé avec:
+  * VLC 3.0.14 Vetinari pour Linux Ubuntu 18.04
+  * VLC 3.0.16 Vetinari pour Windows</strong>
+
+##### V1.0:
+Testé avec:
+  * VLC 3.0.8 Vetinari pour Linux Ubuntu 18.04
+
+### Installation
+
+Copier les fichiers <a href=https://github.com/GDoux/Perroquet-Subtitles-for-VLC/blob/main/perroquet.lua> perroquet.lua </a> et <a href=https://github.com/GDoux/Perroquet-Subtitles-for-VLC/blob/main/perroquet_intf.lua> perroquet_intf.lua </a> dans les dossiers suivants (dépend de votre OS) :
+
+* Windows
+    * Tous les utilisateurs :
+        * perroquet.lua dans	Program Files\VideoLAN\VLC\lua\extensions\
+        * perroquet_intf.lua dans	Program Files\VideoLAN\VLC\lua\intf\
+    * Utilisateur : [non testé]
+        * perroquet.lua dans 	%APPDATA%\vlc\lua\extensions\
+        * perroquet_intf.lua dans	%APPDATA%\vlc\lua\extensions\
+* Mac OS X [non testé]
+    * Tous les utilisateurs :
+        * perroquet.lua dans	/Applications/VLC.app/Contents/MacOS/share/lua/extensions/
+        * perroquet_intf.lua dans	/Applications/VLC.app/Contents/MacOS/share/lua/intf/
+    * Utilisateur :
+        * perroquet.lua dans 	/Users/%your_name%/Library/ApplicationSupport/org.videolan.vlc/lua/extensions/
+        * perroquet_intf.lua dans	/Users/%your_name%/Library/ApplicationSupport/org.videolan.vlc/lua/intf/
+* Linux (il peut être nécessaire de `chmod 755` les fichiers)
+    * Tous les utilisateurs :
+        * perroquet.lua dans	/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/extensions/
+        * perroquet_intf.lua dans	/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/intf/
+    * Utilisateur :
+        * perroquet.lua in 	~/.local/share/vlc/lua/extensions/
+        * perroquet_intf.lua in	~/.local/share/vlc/lua/intf/
+    * Snap: (le numéro 2288 peut être différent sur votre machine)
+        * perroquet.lua in 	~/snap/vlc/2288/.local/share/vlc/lua/extensions/
+        * perroquet_intf.lua in	~/snap/vlc/2288/.local/share/vlc/lua/intf/
+		
+Ouvrez ensuite VLC et sélectionnez `Perroquet Subtitles for VLC` dans le menu `Vue`. Cliquez sur `SAVE` and rédemarrez VLC.
+
+## Utilisation
+
+#### Préparation
+En supposant que le fichier vidéo s'apelle "MOVIE_FILE.avi" (ou .mkv, .mp4, etc.) et que vous disposez d'un fichier de sous-titres synchronisés "SUB_FOR_MOVIE_FILE.srt"
+0) Ouvrez VLC et sélectionnez `Perroquet Subtitles for VLC` dans le menu `Vue`. Cliquez sur `SAVE` et redémarrez VLC
+1) Renommez "SUB_FOR_MOVIE_FILE.srt" en "MOVIE_FILE.perroquet" ou "MOVIE_FILE[ANY_CHARACTERS].perroquet"
+2) Vérifiez que le fichier "MOVIE_FILE.perroquet" se trouve dans le même dossier que "MOVIE_FILE.avi"
+3) Assurez-vous qu'aucun fichier .srt ou de sous-titre nommé "MOVIE_FILE[ANY_CHARACTERS].srt" ou similaire ne soit dans le même dossier que le fichier "MOVIE_FILE.avi" (dans le cas contraire, les sous-titres apparaitront dans VLC...)
+4) Ouvrez "MOVIE_FILE.avi" dans VLC
+5) Dans le menu de VLC, cliquez sur Vue, puis sur Perroquet Subtitles for VLC
+6) Une nouvelle fenêtre devrait s'ouvrir
+
+#### Utilisation
+Vous devriez alors pouvoir exécutez les actions suivantes
+1) Le fichier .perroquet file est chargé par défaut, consultez la section "Aide" si vous rencontrez une erreur ou des problèmes d'encodage de caractères
+2) Choisissez une séquence avec VLC ou avec les boutons `<<` / `>>` et cliquez sur `(Re)play`
+3) Écrivez ce que vous comprenez  dans le champs Input et cliquez sur le bouton `Try!`
+4) Vérifiez dans le champs situé sous le bouton `(Re)play` ce que vous avez trouvé ou raté. Cliquez sur `(Re)play` si vous voulez écouter la séquence a nouveau
+5) Quand vous avez correctement reproduit la séquence, VLC rejoue la séquence une dernière fois et poursuit avec la séquence suivante
+6) Si vous êtes bloqué, cliquez sur `Help!`
+
+* Remarques: 
+    * Les fichiers comme "MOVIE_FILE[ANY_CHARACTERS].perroquet.srt" sont également acceptés mais vous devrez peut-être désactiver les sous-titres dans l'interface de VLC.
+ 
+## Aide
+
+### Remarques générales
+* Le programme accepte plusieurs encodages de caractère dans les sous-titres (des fichiers encodés en ISO-8859-1, UTF-8 et UTF-8-SIG ont été testés avec succès)
+* Bien que les fichiers de sous-titres correspondent rarement exactement à la bande son, ceux-ci sont dans leur vaste majorité suffisamment proches pour permettre une bonne expérience d'apprentissage. Utilise le bouton `Help` quand vous sentez que vous êtes bloqués
+* Les sous-titres pour personnes sourdes et malentendantes sont généralement de très bons fichiers pour pratiquer. Ces derniers peuvent cependant transcrire des sons non verbaux, généralement mis en évidence par des "(...)"
+
+### Fichiers de sous-titres et configurations:
+* Si vous avez plusieurs fichiers ".perroquet" files, select one of them in the drowdown list and click on load
+* If you have an error "Malformed subtitle...", try to change the default UTF-8 encoding to "UTF-8-SIG" or "ISO_8859-1-SIG" in the dedicated Dropdown menu. Then click on load.
+* If you have unrecognized/weird character such as � or Ã£, try to change the default UTF-8 encoding to "ISO_8859-1" in the dedicated Dropdown menu. Then click on load
+* If the sequence are too short or start too late (and you cannot hear the whole sequence), try to
+	* change the `Delay before` and `Delay After` (default to 1s) to a larger one
+	* manually change the synchronization  with `g` and `h` key in VLC
+	* resync your original srt file with a dedicated tool
+
+### Other
+If you want to deactivate the Perroquet_intf interface, go to Tools> Preferences and select "All" under `show settings` bullet. Then go to Interface> Main interface> Lua and delete the field `Lua interface`. Save and restart vlc.
+
+### Debugging
+
+The program can be debugged by running VLC in verbose mode. Under linux this means:
+```sh
+vlc --verbose=2
+```
+Under windows: open VLC, then `ctrl+M` and change verbosity to 2.
 
 # MISCELLANEOUS
 
