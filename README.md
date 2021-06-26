@@ -124,7 +124,7 @@ Under windows: open VLC, then `ctrl+M` and change verbosity to 2.
 
 Cette extension Lua pour VLC vous permet de pratiquer votre compréhension orale dans la/les langue(s) que vous apprenez.
 
-A partir d'une copie d'une vidéo ou d'un film en votre possession et accompagné d'un fichier (.srt) de sous-titres synchronisé dans la langue originale (ou dans la même langue que la bande son):
+A partir d'une copie d'une vidéo ou d'un film en votre possession et accompagné d'un fichier (.srt) de sous-titres synchronisé dans la langue originale (ou dans la même langue que la bande son) :
 
 * Perroquet Subtitles for VLC "découpe" votre film en séquence
 * Pour chaque séquence, vous écrivez ce que vous comprenez dans le champs "input"
@@ -180,7 +180,7 @@ Ouvrez ensuite VLC et sélectionnez `Perroquet Subtitles for VLC` dans le menu `
 ## Utilisation
 
 #### Préparation
-En supposant que le fichier vidéo s'apelle "MOVIE_FILE.avi" (ou .mkv, .mp4, etc.) et que vous disposez d'un fichier de sous-titres synchronisés "SUB_FOR_MOVIE_FILE.srt"
+En supposant que le fichier vidéo s'apelle "MOVIE_FILE.avi" (ou .mkv, .mp4, etc.) et que vous disposez d'un fichier de sous-titres synchronisés "SUB_FOR_MOVIE_FILE.srt".
 0) Ouvrez VLC et sélectionnez `Perroquet Subtitles for VLC` dans le menu `Vue`. Cliquez sur `SAVE` et redémarrez VLC
 1) Renommez "SUB_FOR_MOVIE_FILE.srt" en "MOVIE_FILE.perroquet" ou "MOVIE_FILE[ANY_CHARACTERS].perroquet"
 2) Vérifiez que le fichier "MOVIE_FILE.perroquet" se trouve dans le même dossier que "MOVIE_FILE.avi"
