@@ -2,7 +2,7 @@
 
 # Perroquet Subtitles for VLC
 
-<img src="img/Perroquet_Subs_for_VLC_3.png" alt="picture" width="200"/>
+<img src="img/Perroquet_Subs_for_VLC_3.png" alt="picture" width="400"/>
 
 Train your listening comprehension by rewriting your favorite movies' subs (with correction)
 
