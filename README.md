@@ -27,10 +27,10 @@ Improve your listening and writing abilities in many languages and on a very lar
 
 ### Dependencies & Versions
 
-##### **V1.1
+##### <strong>V1.1
 Tested with:
   * VLC 3.0.14 Vetinari for Linux Ubuntu 18.04
-  * VLC 3.0.16 Vetineri for Windows**
+  * VLC 3.0.16 Vetineri for Windows</strong>
 
 ##### V1.0:
 Tested with:
