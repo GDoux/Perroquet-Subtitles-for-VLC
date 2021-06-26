@@ -71,13 +71,13 @@ Then open VLC and select `Perroquet Subtitles for VLC` in the `view` menu. Click
 
 #### Starting up
 Assuming you movie file is "MOVIE_FILE.avi" (or .mkv, .mp4, etc.) and that you have a synced subtitles file "SUB_FOR_MOVIE_FILE.srt"
-0) Open VLC and select `Perroquet Subtitles for VLC` in the `view` menu. Click on `SAVE` and restart VLC
-1) Rename "SUB_FOR_MOVIE_FILE.srt" to "MOVIE_FILE.perroquet" or "MOVIE_FILE[ANY_CHARACTERS].perroquet"
-2) Put the newly created "MOVIE_FILE.perroquet" file in the same folder as "MOVIE_FILE.avi"
-3) Make sure no .srt file or subs file named like "MOVIE_FILE[ANY_CHARACTERS].srt" and in the same folder as "MOVIE_FILE.avi" (or subs will appear in VLC...)
-4) Open "MOVIE_FILE.avi" with VLC
-5) In the VLC toolbar, click on View , then on Perroquet Subtitles for VLC
-6) A new gui (window) should open
+1) Open VLC and select `Perroquet Subtitles for VLC` in the `view` menu. Click on `SAVE` and restart VLC
+2) Rename "SUB_FOR_MOVIE_FILE.srt" to "MOVIE_FILE.perroquet" or "MOVIE_FILE[ANY_CHARACTERS].perroquet"
+3) Put the newly created "MOVIE_FILE.perroquet" file in the same folder as "MOVIE_FILE.avi"
+4) Make sure no .srt file or subs file named like "MOVIE_FILE[ANY_CHARACTERS].srt" and in the same folder as "MOVIE_FILE.avi" (or subs will appear in VLC...)
+5) Open "MOVIE_FILE.avi" with VLC
+6) In the VLC toolbar, click on View , then on Perroquet Subtitles for VLC
+7) A new gui (window) should open
 
 #### Using
 Then you should be able to do the following
@@ -181,13 +181,13 @@ Ouvrez ensuite VLC et sélectionnez `Perroquet Subtitles for VLC` dans le menu `
 
 #### Préparation
 En supposant que le fichier vidéo s'apelle "MOVIE_FILE.avi" (ou .mkv, .mp4, etc.) et que vous disposez d'un fichier de sous-titres synchronisés "SUB_FOR_MOVIE_FILE.srt".
-0) Ouvrez VLC et sélectionnez `Perroquet Subtitles for VLC` dans le menu `Vue`. Cliquez sur `SAVE` et redémarrez VLC
-1) Renommez "SUB_FOR_MOVIE_FILE.srt" en "MOVIE_FILE.perroquet" ou "MOVIE_FILE[ANY_CHARACTERS].perroquet"
-2) Vérifiez que le fichier "MOVIE_FILE.perroquet" se trouve dans le même dossier que "MOVIE_FILE.avi"
-3) Assurez-vous qu'aucun fichier .srt ou de sous-titre nommé "MOVIE_FILE[ANY_CHARACTERS].srt" ou similaire ne soit dans le même dossier que le fichier "MOVIE_FILE.avi" (dans le cas contraire, les sous-titres apparaitront dans VLC...)
-4) Ouvrez "MOVIE_FILE.avi" dans VLC
-5) Dans le menu de VLC, cliquez sur Vue, puis sur Perroquet Subtitles for VLC
-6) Une nouvelle fenêtre devrait s'ouvrir
+1) Ouvrez VLC et sélectionnez `Perroquet Subtitles for VLC` dans le menu `Vue`. Cliquez sur `SAVE` et redémarrez VLC
+2) Renommez "SUB_FOR_MOVIE_FILE.srt" en "MOVIE_FILE.perroquet" ou "MOVIE_FILE[ANY_CHARACTERS].perroquet"
+3) Vérifiez que le fichier "MOVIE_FILE.perroquet" se trouve dans le même dossier que "MOVIE_FILE.avi"
+4) Assurez-vous qu'aucun fichier .srt ou de sous-titre nommé "MOVIE_FILE[ANY_CHARACTERS].srt" ou similaire ne soit dans le même dossier que le fichier "MOVIE_FILE.avi" (dans le cas contraire, les sous-titres apparaitront dans VLC...)
+5) Ouvrez "MOVIE_FILE.avi" dans VLC
+6) Dans le menu de VLC, cliquez sur Vue, puis sur Perroquet Subtitles for VLC
+7) Une nouvelle fenêtre devrait s'ouvrir
 
 #### Utilisation
 Vous devriez alors pouvoir exécutez les actions suivantes
