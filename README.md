@@ -1,5 +1,12 @@
 # Perroquet Subtitles for VLC
 
+<details >
+<summary># FRENCH</summary>
+</details>
+
+<details open>
+<summary># ENGLISH</summary>
+
 Train your listening comprehension by rewriting your favorite movies' subs (with correction)
 
 ## Description
@@ -85,6 +92,7 @@ The program can be debugged by running VLC in verbose mode. Under linux this mea
 ```sh
 vlc --verbose=2
 ```
+</details>
 
 ## Author
 
