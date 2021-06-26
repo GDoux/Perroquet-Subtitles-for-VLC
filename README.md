@@ -88,9 +88,9 @@ Then you should be able to do the following
 5) When you correctly write the sequence, VLC replays the sequence one last time and goes to the next sequence
 6) If you are stuck, click on `Help!`
 
-*Notes: 
-    *files like "MOVIE_FILE[ANY_CHARACTERS].perroquet.srt" are also accepted but you may have to deactivate the sub tracks in VLC interface.
-    *you can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window*
+* Notes: 
+    * files like "MOVIE_FILE[ANY_CHARACTERS].perroquet.srt" are also accepted but you may have to deactivate the sub tracks in VLC interface.
+    * you can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window*
  
 ## Help
 
