@@ -1,24 +1,56 @@
 --[[
 Program: Perroquet Subtitles for VLC
 Purpose: Train your listening comprehension by rewriting your favorite movies' subs (with correction)
+Version: 1.1
 Author: Gaspard DOUXCHAMPS
 License: GNU GENERAL PUBLIC LICENSE
-Release-Date: 20/06/2021
-Credits: to Fred Bertolus and the Perroquet Team for the original software (https://launchpad.net/perroquet) and to Tomás Crespo for the "Subtitle Word Search" add-on (https://addons.videolan.org/p/1154033/)
+Release-Date: 25/06/2021
+Credits: to Fred Bertolus and the Perroquet Team for the original software (https://launchpad.net/perroquet) and to Tomás Crespo for the "Subtitle Word Search" add-on (https://addons.videolan.org/p/1154033/). To Mederi for the Time v3.2 extension (https://addons.videolan.org/p/1154032/)
 ]]
 
-config = {}
-local cfg = {}
+--[[
+INSTRUCTIONS:
+This script file shoud be used with the perroquet_intf.lua file.
+
+The files should be placed in the following directories:
+
+* Windows
+	All Users:
+	 	perroquet.lua in	Program Files\VideoLAN\VLC\lua\extensions\
+		perroquet_intf.lua in	Program Files\VideoLAN\VLC\lua\intf\
+ 	Current user: [not tested]
+		perroquet.lua in 	%APPDATA%\vlc\lua\extensions\
+		perroquet_intf.lua in	%APPDATA%\vlc\lua\extensions\
+
+* Mac OS X [not tested]
+	All Users:
+	 	perroquet.lua in	/Applications/VLC.app/Contents/MacOS/share/lua/extensions/
+		perroquet_intf.lua in	/Applications/VLC.app/Contents/MacOS/share/lua/intf/
+ 	Current user:
+		perroquet.lua in 	/Users/%your_name%/Library/ApplicationSupport/org.videolan.vlc/lua/extensions/
+		perroquet_intf.lua in	/Users/%your_name%/Library/ApplicationSupport/org.videolan.vlc/lua/intf/
+
+* Linux
+	All Users:
+	 	perroquet.lua in	/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/extensions/
+		perroquet_intf.lua in	/usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/intf/
+ 	Current user: [not tested]
+		perroquet.lua in 	~/.local/share/vlc/lua/extensions/
+		perroquet_intf.lua in	~/.local/share/vlc/lua/intf/
+	Snap: (the number 2288 maybe different on your system)
+		perroquet.lua in 	~/snap/vlc/2288/.local/share/vlc/lua/extensions/
+		perroquet_intf.lua in	~/snap/vlc/2288/.local/share/vlc/lua/intf/
+]]
 
 function descriptor()
 	return {
 		title = "Perroquet Subtitles for VLC",
 		version = "1.1",
 		author = "Gaspard DOUXCHAMPS",
-		--url = "https://github.com/tcrespog/vlc-subtitle-word-search",
+		url = "https://github.com/GDoux/Perroquet-Subtitles-for-VLC",
 		shortdesc = "Perroquet Subtitles for VLC",
 		description = "Train your listening comprehension by rewriting your favorite movies' subs (with correction)",
-		capabilities = {}
+		capabilities ={},
 	}
 end
 
@@ -26,13 +58,8 @@ end
 
 function activate()
 	os.setlocale("C", "all") -- just in case
-	Get_config()
-	if (config) and (config.TIME) then
-		cfg = config.TIME
-		cfg.start=false
-	end
-	local VLC_extraintf, VLC_luaintf, t, ti = VLC_intf_settings()
-	if not ti or VLC_luaintf~="perroquet_intf" then 
+	local VLC_extraintf, VLC_luaintf, intf_table, luaintf_index = VLC_intf_settings()
+	if luaintf_index==-1 or VLC_luaintf~="perroquet_intf" then 
 		trigger_menu(2) 
 	else 
 		trigger_menu(1) 
@@ -45,48 +72,74 @@ end
 
 ----------Menu---------------
 
+-- Selects the menu depending on id and initialize it
 function trigger_menu(id)
 	if self then
 		if self.dialog then
 			self.dialog:delete() 
 		end
 	end
-	if id==1 then -- Control panel
+	if id==1 then -- Normal menu
+		initialize_runseq()
 		initialize_gui()
 		initialize_encodings()
 		initialize_subtitle_files()
 		load_subtitle_file()
-	elseif id==2 then -- Settings
-		self = Gui:new()
-		self.dialog = vlc.dialog("Perroquet for VLC")		
-		enable_extraintf = self.dialog:add_check_box("Enable interface: ", true,1,1,1,1)
-		ti_luaintf = self.dialog:add_text_input("perroquet_intf",2,1,2,1)
-		self.dialog:add_button("SAVE!", click_SAVE_settings,1,2,1,1)
-		self.dialog:add_button("CANCEL", click_CANCEL_settings,2,2,1,1)
-		--	lb_message = dlg:add_label("CLI options: --extraintf=luaintf --lua-intf="..intf_script,1,3,3,1)
-		local VLC_extraintf, VLC_luaintf, t, ti = VLC_intf_settings()
-		lb_message = self.dialog:add_label("Current status: " .. (ti and "ENABLED" or "DISABLED") .. " " .. tostring(VLC_luaintf),1,3,3,1)	
+	elseif id==2 then -- Intf settings menu
+		initialize_gui_intf()
 	end
 end
 
 -----------INTF activation----------------
+
+-- Initializes the intf activation settings gui
+function initialize_gui_intf()
+	self = Gui:new()
+	self.dialog = vlc.dialog("Perroquet for VLC")	
+	
+	enable_extraintf = self.dialog:add_check_box("Enable interface: ", true,1,1,1,1)
+	name_luaintf = self.dialog:add_text_input("perroquet_intf",2,1,2,1)
+	self.dialog:add_button("SAVE!", click_SAVE_settings,1,2,1,1)
+	self.dialog:add_button("CANCEL", click_CANCEL_settings,2,2,1,1)
+
+	local VLC_extraintf, VLC_luaintf, intf_table, lua_intf_index = VLC_intf_settings()
+	lb_message = self.dialog:add_label("Current status: " .. ((lua_tinf_index==-1) and "ENABLED" or "DISABLED") .. " " .. tostring(VLC_luaintf),1,3,3,1)	
+end
+
+-- Activates perroquet intf
 function click_SAVE_settings()
-	local VLC_extraintf, VLC_luaintf, t, ti = VLC_intf_settings()
+	local VLC_extraintf, VLC_luaintf, intf_table, luaintf_index = VLC_intf_settings()
 
 	if enable_extraintf:get_checked() then
-		--vlc.config.set("extraintf", "luaintf")
-		if not ti then table.insert(t, "luaintf") end
-		vlc.config.set("lua-intf", ti_luaintf:get_text())
+		if not lua_intf_index then table.insert(intf_table, "luaintf") end
+		vlc.config.set("lua-intf", name_luaintf:get_text())
 	else
-		--vlc.config.set("extraintf", "")
-		if ti then table.remove(t, ti) end
+		if lua_intf_index then table.remove(intf_table, luaintf_index) end
 	end
-	vlc.config.set("extraintf", table.concat(t, ":"))
+	vlc.config.set("extraintf", table.concat(intf_table, ":"))
 	lb_message:set_text("Please restart VLC for changes to take effect!")
 end
 
 function click_CANCEL_settings()
 	trigger_menu(1)
+end
+
+-- Reads intf settings
+function VLC_intf_settings()
+	local VLC_extraintf = vlc.config.get("extraintf") -- enabled VLC interfaces
+	local VLC_luaintf = vlc.config.get("lua-intf") -- Lua Interface
+	local intf_table={}
+	local luaintf_index=false
+	if VLC_extraintf then
+		intf_table=split_string(VLC_extraintf, ":")
+		for i,v in ipairs(intf_table) do
+			if v=="luaintf" then
+				luaintf_index=i
+				break
+			end
+		end
+	end
+	return VLC_extraintf, VLC_luaintf, intf_table, luaintf_index
 end
 
 ---------- Initialization functions ----------
@@ -97,23 +150,29 @@ gui = nil
 subtitle_files = nil
 -- current_subtitle_file {SubtitleFile} Contains the currently selected subtitle file.
 current_subtitle_file = nil
- --current_subtitle_line {SubtitleLine} Contains the currently studies subtitle line
+--current_subtitle_line {SubtitleLine} Contains the currently studies subtitle line
 current_subtitle_line=nil
 -- encodings {} Contains all encoding/decoding capabilities
 encodings={}
-
-config={}
-
---readable_char="([%wçã]+)"
+--characters that form words in subtitle_line
 readable_char="([%wçÀ-ÿæœÆŒß]+)"
+--characters that delimitates words in subtitle_line
 word_recogn_char= "([^%w^ç^À-ÿ^æ^œ^Æ^Œ^ß]+)"
 
+-- Initializes the runseq string in bookmark10, just to make sure
+function initialize_runseq()
+	runseq=Runseq.new()
+	runseq:init_runseq()
+end
+
+-- Initializes the normal gui
 function initialize_gui()
 	gui = Gui.new()
 	gui:render()
 end
 
 -- Generates the list of enconding/decoding capabilities
+-- The list is the same for windows and unix in this version
 function initialize_encodings() 
 	if (is_unix_os()) then
 		encodings = {"UTF-8", "UTF-8-SIG", "ISO_8859-1", "ISO_8859-1-SIG"}
@@ -123,7 +182,7 @@ function initialize_encodings()
 	gui:inject_encodings(encodings)
 end
 
--- Look for the candidate perroquet files and adds them to the GUI dropdown.
+-- Looks for the candidate perroquet files and adds them to the GUI dropdown.
 function initialize_subtitle_files()
 	local file_discoverer = SubtitleFileDiscoverer.new("perroquet")
 	local is_movie_opened = get_video_file_location()
@@ -139,12 +198,13 @@ end
 
 ---------- GUI callback functions ----------
 
--- Load a perroquet file.
+-- Loads a perroquet file.
 -- Then shows the subtitle hidden words corresponding to the current time, or to the closest next sequence, or displays an error message if something went wrong.
 function load_subtitle_file()
 	if (current_subtitle_file) then
 		current_subtitle_file:clear()
-		gui:print_error_message("")
+--		gui:print_error_message("")
+		gui:print_warning_message("Loading ...")
 	end
 
 	local subtitle_file_index = gui:get_selected_subtitle_file_index()
@@ -173,7 +233,7 @@ function load_subtitle_file()
 	end
 end
 
--- Show the hidden words appearing at the current timestamp, or at the closest next sequence.
+-- Shows the hidden words appearing at the current timestamp, or at the closest next sequence.
 -- Displays an error message if something goes wrong.
 function capture_words_at_now()
 	if (not current_subtitle_file) then
@@ -195,22 +255,22 @@ function capture_words_at_now()
 	end
 end
 
--- Show the words corresponding to the current subtitle.
+-- Shows the words corresponding to the current subtitle.
 function navigate_still()
 	navigate(0)
 end
 
--- Show the words corresponding to the subtitle that goes before the current one.
+-- Shows the words corresponding to the subtitle that goes before the current one.
 function navigate_backward()
 	navigate(-1)
 end
 
--- Show the words corresponding to the subtitle that goes after the current one.
+-- Shows the words corresponding to the subtitle that goes after the current one.
 function navigate_forward()
 	navigate(1)
 end
 
--- Show the words corresponding to the subtitle shifted `n` lines.
+-- Shows the words corresponding to the subtitle shifted `n` lines.
 function navigate(n)
 	if (not current_subtitle_file) then
 		return
@@ -224,7 +284,7 @@ function navigate(n)
 	end
 end
 
--- Show the hidden words of a subtitle along with the associated timestamp in the corresponding list widget.
+-- Shows the hidden words of a subtitle along with the associated timestamp in the corresponding list widget.
 function show_subtitle_and_timestamp(subtitle_line, timestamp_start, timestamp_finish)
 	if (subtitle_line) then
 		gui:inject_subtitle_words(subtitle_line:get_hidden())
@@ -237,10 +297,12 @@ end
 -- Gets the subs written by user in input field, update hidden words accordingly. If all words were found, replay the sequence and go to the next
 function user_input_subs()
 	local input_string=gui.input_subs:get_text()
-	gonext=current_subtitle_line:update_hidden_table(input_string)
-	gui:update()
-	if gonext==1 then
-		navigate_forward_and_play()
+	if (current_subtitle_line) then
+		gonext=current_subtitle_line:update_hidden_table(input_string)
+		gui:update()
+		if gonext==1 then
+			navigate_forward_and_play()
+		end
 	end
 end
 
@@ -248,7 +310,7 @@ end
 function navigate_forward_and_play()
 	local old_start = current_subtitle_line:get_start():to_microseconds()
 	navigate(1)
-	run(old_start - gui.delay_before:get_text()*1000, current_subtitle_line.finish.microseconds + gui.delay_after:get_text()*1000)
+	run_seq(old_start - gui.delay_before:get_text()*1000, current_subtitle_line.finish.microseconds + gui.delay_after:get_text()*1000)
 end
 
 -- Replays the current sequence
@@ -257,83 +319,69 @@ function go_to_subtitle_timestamp()
 		return
 	end
 	navigate(0)
-	run(current_subtitle_line:get_start():to_microseconds() - gui.delay_before:get_text()*1000,current_subtitle_line.finish.microseconds + gui.delay_after:get_text()*1000)
+	run_seq(current_subtitle_line:get_start():to_microseconds() - gui.delay_before:get_text()*1000,current_subtitle_line.finish.microseconds + gui.delay_after:get_text()*1000)
 end
 
--- Runs a video sequence between two times. Can be improved with a "wait" instead of a "freeze"
---[[function run(begin_time, finish_time)
+-- Runs a video sequence between two times, then pause. Improved in v1.1 vs v1.0
+function run_seq(begin_time, finish_time)
+	local runseq=Runseq.new()
+	runseq.para.begin_time = math.max(1,begin_time)
+	runseq.para.finish_time = math.min(vlc.var.get(vlc.object.input(), "length"),finish_time)
+	runseq.para.count = get_runseq_count() +1
+	runseq.para.start=true
+	runseq:set_runseq()
 	vlc.var.set(vlc.object.input(), "time", begin_time)
 	vlc.playlist.play()
-	repeat
-		t=vlc.var.get(vlc.object.input(), "time") --sleep while running
-	until (finish_time < t)
-	vlc.playlist.pause()
-end]]
-
-function run(begin_time, finish_time)
-	cfg.begin_time = begin_time
-	cfg.finish_time=finish_time
-	cfg.start = true
-	Set_config(cfg, "TIME")
-	vlc.var.set(vlc.object.input(), "time", begin_time)
-	vlc.playlist.play()
-	cfg.start = false
-	Set_config(cfg, "TIME")
 --	dlg:set_title(descriptor().title)
 end
 
 function help()
-	current_subtitle_line:reveal_all()
-end
-
-function Get_config()
-	local s = vlc.config.get("bookmark10")
-	if not s or not string.match(s, "^config={.*}$") then 
-		s = "config={}"
-	end
-	assert(loadstring(s))() -- global var
-end
-
-function Set_config(cfg_table, cfg_title)
-	if not cfg_table then 
-		cfg_table={} 
-	end
-	if not cfg_title then 
-		cfg_title=descriptor().title 
-	end
-	if cfg.start then
-		vlc.msg.err("start")
-	else
-		vlc.msg.err("stop")
-	end
-	Get_config()
-	config[cfg_title]=cfg_table
-	vlc.config.set("bookmark10", "config="..Serialize(config))
-end
-
-function Serialize(t)
-	if type(t)=="table" then
-		local s='{'
-		for k,v in pairs(t) do
-			if type(k)~='number' then k='"'..k..'"' end
-			s = s..'['..k..']='..Serialize(v)..',' -- recursion
-		end
-		return s..'}'
-	elseif type(t)=="string" then
-		return string.format("%q", t)
-	else --if type(t)=="boolean" or type(t)=="number" then
-		return tostring(t)
+	if (current_subtitle_line) then
+		current_subtitle_line:reveal_all()
 	end
 end
 
 ---------- Classes ----------
+
+-- Class: Runseq
+-- Stores the sequence running parameters
+Runseq = {}
+Runseq.__index = Runseq
+
+-- Creates and initialize a runseq
+function Runseq.new()
+	local self = setmetatable({}, Runseq)
+	self.para = {}
+	self.para.begin_time = 0
+	self.para.finish_time = 0
+	self.para.count = 0
+	self.para.start=false
+	return self
+end
+
+-- Writes the init runseq in bookmark10.
+function Runseq:init_runseq()
+	self:set_runseq()
+end
+
+-- Reads the current runseq_count (roughly the number of times run_seq function has been called)
+function get_runseq_count()
+	local s = vlc.config.get("bookmark10")
+	count = string.match(s,"\"count\"]=(%d+)")
+	return count
+end
+
+-- Writes the runseq parameters to bookmark10
+function Runseq:set_runseq()	
+	vlc.config.set("bookmark10", "runseq="..Serialize(self))
+end
 
 -- Class: Gui.
 -- Renders the GUI (Graphical User Interface).
 Gui = {}
 Gui.__index = Gui
 
--- Constructor method. Create the GUI instance.
+-- Constructor method. Creates the GUI instance.
 function Gui.new()
 	local self = setmetatable({}, Gui)
 	-- dialog {vlc.dialog} The VLC dialog.
@@ -351,7 +399,7 @@ function Gui.new()
 	return self
 end
 
--- Render the VLC extension grid dialog.
+-- Renders the VLC extension grid dialog.
 function Gui:render()
 	self.dialog = vlc.dialog("Perroquet for VLC")
 	self:draw_file_section()
@@ -361,7 +409,7 @@ function Gui:render()
 	self.dialog:show()
 end
 
--- Increment the index of the last row in the GUI and returns the value previous to the increment.
+-- Increments the index of the last row in the GUI and returns the value previous to the increment.
 -- Equivalent to the typical construct `n++` of other programming languages.
 -- @return {number} The last row number value previous to the increment.
 function Gui:increment_row()
@@ -370,7 +418,7 @@ function Gui:increment_row()
 	return previous_last_row
 end
 
--- Draw the perroquet files selector section. The order matters to ease the use of tab, arrows and enter key
+-- Draws the perroquet files selector section. The order matters to ease the use of tab, arrows and enter key
 function Gui:draw_file_section()
 	self.dialog:add_label("<h4>Subtitles file and settings</h4>", 1, self:increment_row(), 5, 1)
 	self.files_dropdown = self.dialog:add_dropdown(1, self.last_row, 1)
@@ -382,14 +430,14 @@ function Gui:draw_file_section()
 --	self.error_message = self.dialog:add_label("",1,self:increment_row(),5)
 end
 
--- Draw the input section
+-- Draws the input section
 function Gui:draw_input_section()
 	self.dialog:add_label("<h4>Input</h4>", 1, self:increment_row())
 	self.input_subs = self.dialog:add_text_input("Write here what you understand here and click on Try!",1,self.last_row,4)
 	self.dialog:add_button("Try!", user_input_subs, 5, self:increment_row())
 end
 
--- Draw the correction field
+-- Draws the correction field
 function Gui:draw_correction_section()
 	self.dialog:add_label("<h4>Correction</h4>", 1, self:increment_row())
 	self.timestamp_label = self.dialog:add_label("<center> 00:00:00 to 00:00:00 </center>", 1, self.last_row)
@@ -405,33 +453,31 @@ function Gui:draw_button_section()
 	self.dialog:add_button("Load", load_subtitle_file, 3, 2)
 end
 
---Build the encoding dropdown widget
+--Builds the encoding dropdown widget
 function Gui:inject_encodings(encodings)
 	for index, encoding in ipairs(encodings) do
 		gui:inject_encoding(encoding, index)
 	end
 end
 
---Add an encoding to the corresponding dropdown widget
+--Adds an encoding to the corresponding dropdown widget
 function Gui:inject_encoding(encoding, index)
 	self.encodings_dropdown:add_value(encoding,index)
 end
 
---Build the perroquet files dropdown widget
+--Builds the perroquet files dropdown widget
 function Gui:inject_subtitle_files(subtitle_files)
 	for index, subtitle_file in ipairs(subtitle_files) do
 		gui:inject_subtitle_file(subtitle_file:get_name(), index)
 	end
 end
 
--- Add a perroquet file name to the corresponding dropdown widget.
--- @param name {string} The subtitle file name.
--- @param index {number} The search engine index in the global array of subtitle files.
+-- Adds a perroquet file name to the corresponding dropdown widget.
 function Gui:inject_subtitle_file(name, index)
 	self.files_dropdown:add_value(name, index)
 end
 
--- Show the content of the correction field (hidden words)
+-- Shows the content of the correction field (hidden words)
 function Gui:inject_subtitle_words(text)
 	self.correction:set_text("<h2><font color=DarkRed><center>" .. text .. "</center></font></h2>")
 end
@@ -441,24 +487,26 @@ function Gui:get_selected_encoding_index()
 	return self.encodings_dropdown:get_value()
 end
 
--- Get the index of the selected subtitle file in the corresponding dropdown widget.
--- @return {number} The index of the selected file.
+-- Gets the index of the selected subtitle file in the corresponding dropdown widget.
 function Gui:get_selected_subtitle_file_index()
 	return self.files_dropdown:get_value()
 end
 
--- Print a timestamp in the specific label.
--- @param timestamp {Timestamp} The timestamp to print.
+-- Prints a timestamp in the specific label.
 function Gui:print_timestamp(timestamp_start,timestamp_finish)
-   self.timestamp_label:set_text(timestamp_start:to_string() .. " to " ..  timestamp_finish:to_string())
+	self.timestamp_label:set_text(timestamp_start:to_string() .. " to " .. timestamp_finish:to_string())
 end
 
 function Gui:print_error_message(error_message)
 	self.correction:set_text("<h3><font color=red><center>" .. error_message .. "</center></font></h3>")
---	self:print_html(html_error_message)
 end
 
--- Update the GUI. Useful to render partial updates before a method returns.
+function Gui:print_warning_message(warning_message)
+	self.correction:set_text("<h4><font color=DarkRed><center>" .. warning_message .. "</center></font></h4>")
+	gui:update()
+end
+
+-- Updates the GUI. Useful to render partial updates before a method returns.
 function Gui:update()
 	self.dialog:update()
 end
@@ -468,9 +516,7 @@ end
 SubtitleFileDiscoverer = {}
 SubtitleFileDiscoverer.__index = SubtitleFileDiscoverer
 
--- Constructor method. Create a subtitle file discoverer.
--- @param extension {string} The extension of the file to discover. Ex. "srt".
--- @return {SubtitleFileDiscoverer} The subtitle discoverer instance.
+-- Constructor method. Creates a subtitle file discoverer.
 function SubtitleFileDiscoverer.new(extension)
 	local self = setmetatable({}, SubtitleFileDiscoverer)
 	-- extension {string} The file extension to discover
@@ -478,8 +524,7 @@ function SubtitleFileDiscoverer.new(extension)
 	return self
 end
 
--- Get the file system's paths to the found subtitles of the playing video
--- @return {array<SubtitleFile>} The array of discovered files.
+-- Gets the file system's paths to the found subtitles of the playing video
 function SubtitleFileDiscoverer:discover_files()
 	local subtitle_files = {}
 
@@ -504,11 +549,7 @@ function SubtitleFileDiscoverer:discover_files()
 	return subtitle_files
 end
 
--- Get an array of filenames that have the same name as the given filename but differ in extension.
--- @param target_filename {string} The filename to match (without the extension). Ex. "video".
--- @param filename_listing {array<string>} The array of filenames to compare.
--- @param extension {string} The extension to match. Ex. ".srt".
--- @return {array<string>} The array of matching filenames. Ex. { "video.srt", "video.eng.srt", ... }.
+-- Gets an array of filenames that have the same name as the given filename but differ in extension.
 function SubtitleFileDiscoverer:find_matching_filenames(target_filename, filename_listing)
 	local matching_filenames = {}
 
@@ -530,46 +571,34 @@ end
 SubtitleFile = {}
 SubtitleFile.__index = SubtitleFile
 
--- Constructor method. Create a subtitle file.
--- @param path {string} The absolute path of the file.
--- @param name {string} The name of the file.
--- @return {SubtitleFile} The subtitle file instance.
+-- Constructor method. Creates a subtitle file.
 function SubtitleFile.new(path, name)
 	local self = setmetatable({}, SubtitleFile)
-	-- path {string} The path of the subtitle file.
 	self.path = path
-	-- name {string} The name of the subtitle file.
 	self.name = name
-	-- subtitle_lines {array<SubtitleLine>} The subtitle lines in the file.
 	self.subtitle_lines = nil
-	-- current_line_index {number} The index of the current subtitle.
 	self.current_line_index = nil
 	return self
 end
 
--- Set the subtitle lines read from the file.
--- @param {array<SubtitleLine>} The array of subtitle lines in order of appearance.
+-- Sets the subtitle lines read from the file.
 function SubtitleFile:set_subtitle_lines(subtitle_lines)
 	self.subtitle_lines = subtitle_lines
 end
 
--- Get the name of the subtitle file.
--- @return {string} The name of the subtitle file.
+-- Gets the name of the subtitle file.
 function SubtitleFile:get_name()
 	return self.name
 end
 
--- Get the path of the subtitle file.
--- @return {string} The path of the subtitle file.
+-- Gets the path of the subtitle file.
 function SubtitleFile:get_path()
 	return self.path
 end
 
--- Search the subtitle line at the given timestamp.
+-- Searches the subtitle line at the given timestamp.
 -- Performs a binary search over the ordered subtitle lines.
 -- Updates the value of the current line index, which would point to an index with fractional part if nothing was found.
--- @param {Timestamp} The timestamp to search the subtitle at.
--- @return {SubtitleLine} The found line, `nil` if no line was found for the timestamp.
 function SubtitleFile:search_line_at(timestamp)
 	local lower_bound, upper_bound = 1, #self.subtitle_lines
 
@@ -600,20 +629,33 @@ function SubtitleFile:search_line_at(timestamp)
 	return found_line
 end
 
+
+-- Returns the closest subtitle_line after a given timestamp
 function SubtitleFile:pick_closest_line(timestamp)
+	local timestamp_microsec = timestamp:to_microseconds()
 	local deltaT=1000000
-	local shift_timestamp = Timestamp.of_microseconds(timestamp:to_microseconds() + deltaT)
+	local timestamp_sup, timestamp_inf
+	local max_timestamp = vlc.var.get(vlc.object.input(), "length")
+	local min_timestamp =1
+	local n_shift=0
+	local shift_timestamp_inf
+	local shift_timestamp_sup
 	repeat 
-	found_line = self:search_line_at(shift_timestamp)
-	shift_timestamp = Timestamp.of_microseconds(shift_timestamp:to_microseconds() + deltaT)
+		shift_timestamp_sup = math.min(max_timestamp,timestamp_microsec + n_shift*deltaT)
+		shift_timestamp_inf = math.max(min_timestamp,timestamp_microsec - n_shift*deltaT)
+		timestamp_sup = Timestamp.of_microseconds(shift_timestamp_sup)
+		timestamp_inf = Timestamp.of_microseconds(shift_timestamp_inf)
+		n_shift=n_shift+1
+		found_line = self:search_line_at(timestamp_sup)
+		if (not self:is_valid_line_index()) then
+			found_line = self:search_line_at(timestamp_inf)
+		end
+
 	until self:is_valid_line_index()
-return found_line
+	return found_line
 end
 
--- Set an index with fractional part, indicating the place near two consecutive indices where a value not found should be.
--- @param lower_bound {number} The lower bound index of the value proximity.
--- @param upper_bound {number} The upper bound index of the value proximity.
--- @param timestamp {Timestamp} The not found value timestamp.
+-- Sets an index with fractional part, indicating the place near two consecutive indices where a value not found should be.
 function SubtitleFile:set_invalid_line_index(lower_bound, upper_bound, timestamp)
 	local lower_line_timestamp = self.subtitle_lines[lower_bound]:get_start()
 	local upper_line_timestamp = self.subtitle_lines[upper_bound]:get_start()
@@ -627,16 +669,13 @@ function SubtitleFile:set_invalid_line_index(lower_bound, upper_bound, timestamp
 	end
 end
 
--- Check if the current index is pointing to an actual subtitle, or rather to a middle ground.
--- @return {boolean} `true` if the current line index points to a valid line, `false` otherwise.
+-- Checks if the current index is pointing to an actual subtitle, or rather to a middle ground.
 function SubtitleFile:is_valid_line_index()
 	return (self.current_line_index == math.floor(self.current_line_index))
 end
 
--- Get the subtitle line shifting `n` lines from the current line.
+-- Gets the subtitle line shifting `n` lines from the current line.
 -- The lines to shift must be between -1, 0 and +1. A value of 0 returns the current line, or `nil` if not pointing to a valid line.
--- @param n {number} The number of lines to shift.
--- @return The shifted line, `nil` if the shift exceeds the array bounds or doesn't point to anything.
 function SubtitleFile:shift_lines(n)
 	local is_valid_line_index = self:is_valid_line_index()
 	if (not is_valid_line_index and (n == 0)) then
@@ -658,8 +697,8 @@ function SubtitleFile:shift_lines(n)
 	return self.subtitle_lines[new_line_index]
 end
 
--- Clear the subtitle lines of the file.
--- Note the current line index is not cleared.
+-- Clears the subtitle lines of the file.
+-- Note: the current line index is not cleared.
 function SubtitleFile:clear()
 	self.subtitle_lines = nil
 end
@@ -676,37 +715,22 @@ SrtReader.READING_INTERVAL = 1
 SrtReader.READING_CONTENT = 2
 
 -- Constructor method. Creates a reader.
--- @param filepath {string} The path of the file to read.
--- @param subtitle_delay {number} The subtitle delay in microseconds. Can be negative.
--- @return {SrtReader} The SRT reader instance.
 function SrtReader.new(filepath, subtitle_delay, video_length_microseconds,encoding)
 	local self = setmetatable({}, SrtReader)
-	-- filepath {string} The path of the file to read.
 	self.filepath = filepath
-	-- subtitle_delay {number} The subtitle delay in microseconds.
-	self.subtitle_delay = subtitle_delay
-	-- video_length_microseconds {number} The length of the video in microseconds.
-	self.video_length_microseconds = video_length_microseconds
-	-- enconding {string}, the encoding selected by user when loading
+	self.subtitle_delay = subtitle_delay -- microseconds
+	self.video_length_microseconds = video_length_microseconds --microseconds
 	self.encoding = encoding
-	-- current_line_number {number} The line number of the text file being read.
 	self.current_line_number = 1
-	-- subtitle_lines {array<SubtitleLine>} The subtitle lines in the file.
 	self.subtitle_lines = {}
-	-- current_index {number} The index corresponding to the current subtitle line being read.
 	self.current_index = 1
-	-- current_number {number} The number of the subtitle line being read.
 	self.current_number = 1
-	-- current_subtitle_line {SubtitleLine} The subtitle line being constructed.
 	self.current_subtitle_line = nil
-	-- state {number} The current state in the reader's state machine
 	self.current_state = SrtReader.READING_NUMBER
 	return self
 end
 
--- Read the file according to encoding and extracts all subtitle lines. 
--- @return {array<SubtitleLine>} The resulting subtitle lines.
--- @return {string} An error message if some I/O error or processing occurs, nil if everything goes well
+-- Reads the file according to encoding and extracts all subtitle lines. 
 function SrtReader:read()
 	local file, error_message = io.open(self.filepath, "r")
 	if (not file) then
@@ -718,14 +742,6 @@ function SrtReader:read()
 	for line in file:lines() do
 		index=index+1
 		line = remove_charset_signature(line,self.encoding,index)
-		--[[if encoding=="UTF-8" then
-		elseif encoding=="UTF-8-SIG" then
-			if index==1 then
-				line=string.sub(line,4,string.len(line))
-			end
-		else
-			line = vlc.strings.from_charset(encoding,line)
-		end]]
 		line= line .. " "
 		error_message = self:process_line(line)
 		if (error_message) then
@@ -737,9 +753,7 @@ function SrtReader:read()
 	return self.subtitle_lines
 end
 
--- Process a file line depending on the state machine status.
--- @param line {string} The file line to read.
--- @return {string} An error message if something goes wrong, `nil` if everything goes well
+-- Processes a file line depending on the state machine status.
 function SrtReader:process_line(line)
 	local error_message
 	if (self.current_state == SrtReader.READING_NUMBER) then
@@ -754,9 +768,7 @@ function SrtReader:process_line(line)
 	return error_message
 end
 
--- Process a file line looking for a subtitle number.
--- @param line {string} The file line to read.
--- @return {string} An error message if something goes wrong, `nil` if everything goes well.
+-- Processes a file line looking for a subtitle number.
 function SrtReader:process_number(line)
 	if (is_blank(line)) then return end
 
@@ -766,9 +778,7 @@ function SrtReader:process_number(line)
 	return error_message
 end
 
--- Process a file line looking for a subtitle appearance interval.
--- @param line {string} The file line to read.
--- @return {string} An error message if something goes wrong, `nil` if everything goes well.
+-- Processes a file line looking for a subtitle appearance interval.
 function SrtReader:process_interval(line)
 	if (is_blank(line)) then return end
 
@@ -778,8 +788,7 @@ function SrtReader:process_interval(line)
 	return error_message
 end
 
--- Process a file line looking for subtitle content.
--- @param line {string} The file line to read.
+-- Processes a file line looking for subtitle content.
 function SrtReader:process_content(line)
 	if (is_blank(line)) then
 		if (self.current_subtitle_line.start:is_in_video_bounds(self.video_length_microseconds)) then
@@ -795,10 +804,8 @@ function SrtReader:process_content(line)
 	self:read_content(line)
 end
 
--- Read the line containing the number of the current subtitle.
+-- Reads the line containing the number of the current subtitle.
 -- Checks if the number is expected.
--- @param line {string} The file line to read.
--- @return {string} The error message if something goes wrong, `nil` if everything goes well
 function SrtReader:read_number(line)
 	local number = line:match("^%s*(%d+)%s*$")
 	if (not number) then
@@ -813,10 +820,8 @@ function SrtReader:read_number(line)
 	self.current_number = self.current_number + 1
 end
 
--- Read the line containing the interval appearance time of the current subtitle.
--- Set the state in the current subtitle line under construction.
--- @param line {string} The file line to read.
--- @return {string} The error message if something goes wrong, `nil` if everything goes well
+-- Reads the line containing the interval appearance time of the current subtitle.
+-- Sets the state in the current subtitle line under construction.
 function SrtReader:read_interval(line)
 	local start_text, finish_text = line:match("^%s*(%d+:%d+:%d+,%d+)%s*-->%s*(%d+:%d+:%d+,%d+)%s*$")
 	if (not start_text or not finish_text) then
@@ -828,9 +833,7 @@ function SrtReader:read_interval(line)
 	self.current_subtitle_line:set_finish(finish)
 end
 
--- Read the line containing the current subtitle text content.
--- Appends the content to the overall subtitle under construction.
--- @param line {string} The file line to read.
+-- Reads the line containing the current subtitle text content.
 function SrtReader:read_content(line)
 	self.current_subtitle_line:append_content(line)
 end
@@ -841,37 +844,30 @@ end
 SubtitleLine = {}
 SubtitleLine.__index = SubtitleLine
 
--- Constructor method. Create an empty subtitle line to be filled.
--- @return {SubtitleLine} The subtitle line instance.
+-- Constructor method. Creates an empty subtitle line to be filled.
 function SubtitleLine.new()
 	local self = setmetatable({}, SubtitleLine)
-	-- start {Timestamp} The start timestamp of the appearance interval.
 	self.start = nil
-	-- finish {Timestamp} The finish timestamp of the appearance interval.
 	self.finish = nil
 	self.encoding = nil
-	-- content {string} The text content of the subtitle.
 	self.content = ""
 	self.hidden = ""
 	self.hidden_table = {}
 	return self
 end
 
--- Set the start timestamp of the appearance interval.
--- @param start {Timestamp} The start timestamp of the appearance interval.
+-- Sets the start timestamp of the appearance interval.
 function SubtitleLine:set_start(start)
 	self.start = start
 	
 end
 
--- Set the finish timestamp of the appearance interval.
--- @param finish {Timestamp} The finish timestamp of the appearance interval.
+-- Sets the finish timestamp of the appearance interval.
 function SubtitleLine:set_finish(finish)
 	self.finish = finish
 end
 
--- Append content to the subtitle line.
--- @param content {string} The text content to append.
+-- Appends content to the subtitle line.
 function SubtitleLine:append_content(content)
 	self.content = self.content .. decode(content,self.encoding)
 	self.hidden_table={}
@@ -882,9 +878,10 @@ function SubtitleLine:append_content(content)
 	self:update_hidden()
 end
 
--- Update the hidden table of a subtitle line(0 for show, 1 for hide) according to input.
--- Compare word to word and set to 0 the  hidden_table index of guessed words
--- Then reveal content
+-- Updates the hidden table of a subtitle line(0 for show, 1 for hide) according to input.
+-- Compares word to word and set to 0 the hidden_table index of guessed words
+-- Then updates the hidden content of the current_subtitle_line
+-- Then reveals content
 function SubtitleLine:update_hidden_table(input)
 	local index
 	for word_input in input:gmatch(readable_char) do
@@ -894,10 +891,10 @@ function SubtitleLine:update_hidden_table(input)
 			if word_input:lower()==word_corre:lower() then
 				self.hidden_table[index]=0
 			--print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> true")
-else
+			else
 			--print(word_input:lower() .. " == " .. word_corre:lower() .. " ==> false")
 			end	
-	end
+		end
 	end
 	local gonext
 	gonext=self:update_hidden()
@@ -905,27 +902,21 @@ else
 	return gonext
 end
 
+-- Finds and shows the words that are marked as found
+-- When all words are found, gonext is return to 1
 function SubtitleLine:update_hidden()
 	self.hidden = self.content
 	local gonext=1
 	local index=0
---[[	for word in self.content:gmatch(readable_words) do
-		local pattern={{"(%W+)(" .. word .. ")(%W+)","%1" .. blank(word) .. "%3"},{"^(" .. word .. ")(%W+)", blank(word) .. "%2"},{"(%W+)(" .. word .. ")$","%1" .. blank(word)}}]]
 	for word in self.content:gmatch(readable_char) do
-		local pattern={{word_recogn_char .. "(" .. word .. ")" .. word_recogn_char,"%1" .. blank(word) .. "%3"},{"^(" .. word .. ")" .. word_recogn_char, blank(word) .. "%2"},{word_recogn_char .. "(" .. word .. ")$","%1" .. blank(word)}}
 		index=index+1
 		if self.hidden_table[index]==1 then
-			for i = 1, 3 do
-    				if string.find(self.hidden,pattern[i][1]) then
-					self.hidden = string.gsub(self.hidden,pattern[i][1], pattern[i][2])
-					gonext=0
-				end
-			end
+			self:hide_word(word)
+			gonext=0
 		end
 	end
 	return gonext
 end
-	
 
 -- Sets all hidden table value to 0 (Help function)
 function SubtitleLine:reveal_all()
@@ -936,37 +927,42 @@ function SubtitleLine:reveal_all()
 	self:reveal()	
 end
 
--- Rebuilds hidden subs according to hidden table, then inject results in the correction field
--- when all words are guessed, returns the gonext parameters that triggers the navigate_forward_and_play() function when at 1
+-- Injects hidden in the correction field
 function SubtitleLine:reveal()
 	gui:inject_subtitle_words(self.hidden)
 end
 
--- Get the start timestamp of the appearance interval.
--- @return {Timestamp} The start timestamp of the appearance interval.
+-- Hides a word in a hidden subtitle line
+function SubtitleLine:hide_word(word)
+	local pattern={{word_recogn_char .. "(" .. word .. ")" .. word_recogn_char,"%1" .. hide_string(word) .. "%3"},{"^(" .. word .. ")" .. word_recogn_char, hide_string(word) .. "%2"},{word_recogn_char .. "(" .. word .. ")$","%1" .. hide_string(word)}}
+	for i = 1, 3 do
+		if string.find(self.hidden,pattern[i][1]) then
+			self.hidden = string.gsub(self.hidden,pattern[i][1], pattern[i][2])
+		end
+	end
+end
+
+-- Gets the start timestamp of the appearance interval.
 function SubtitleLine:get_start()
 	return self.start
 end
 
--- Get the finish timestamp of the appearance interval.
+-- Gets the finish timestamp of the appearance interval.
 function SubtitleLine:get_finish()
 	return self.finish
 end
 
--- Get the content of the subtitle line.
--- @return {string} The content of the subtitle.
+-- Gets the content of the subtitle line.
 function SubtitleLine:get_content()
 	return self.content
 end
 
--- Get the hidden version of a sub line
+-- Gets the hidden version of a sub line
 function SubtitleLine:get_hidden()
 	return self.hidden
 end
 
--- Check whether a timestamp is contained in the subtitle appearance interval (both inclusive).
--- @param timestamp {Timestamp} The timestamp to check.
--- @return {boolean} True if the timestamp is in the interval, false otherwise.
+-- Checks whether a timestamp is contained in the subtitle appearance interval (both inclusive).
 function SubtitleLine:is_in_interval(timestamp)
 	return (timestamp:compare_to(self.start) >= 0) and (timestamp:compare_to(self.finish) <= 0)
 end
@@ -978,21 +974,16 @@ Timestamp = {}
 Timestamp.__index = Timestamp
 
 -- Constructor method. Creates an empty timestamp instance.
--- @return {Timestamp} The timestamp instance.
 function Timestamp.new()
 	local self = setmetatable({}, Timestamp)
-	-- text {string} The timestamp in <hh:mm:ss,fff> format.
 	self.text = nil
-	-- microseconds {number} The timestamp in microseconds.
 	self.milliseconds = nil
 	self.microseconds = nil
 	return self
 end
 
--- Factory method. Create a new timestamp from text in <hh:mm:ss,fff format>.
+-- Factory method. Creates a new timestamp from text in <hh:mm:ss,fff format>.
 -- Computes the equivalent microseconds.
--- @param text {string} The timestamp in <hh:mm:ss,fff> format.
--- @return {Timestamp} The timestamp instance.
 function Timestamp.of_text(text)
 	local instance = Timestamp.new()
 	instance.text = text
@@ -1003,10 +994,8 @@ function Timestamp.of_text(text)
 	return instance
 end
 
--- Factory method. Create a new timestamp from microseconds.
+-- Factory method. Creates a new timestamp from microseconds.
 -- Computes the text representation in <hh:mm:ss,fff> format.
--- @param total_microseconds {number} The number of microseconds.
--- @return {Timestamp} The timestamp instance.
 function Timestamp.of_microseconds(total_microseconds)
 	local instance = Timestamp.new()
 	instance.microseconds = total_microseconds
@@ -1021,37 +1010,29 @@ function Timestamp.of_microseconds(total_microseconds)
 	return instance
 end
 
--- Factory method. Create a new timestamp from the playing time of the video.
--- @return {Timestamp} The timestamp instance.
+-- Factory method. Creates a new timestamp from the playing time of the video.
 function Timestamp.now()
 	local playing_time_microseconds = vlc.var.get(vlc.object.input(), "time")
 	return Timestamp.of_microseconds(playing_time_microseconds)
 end
 
--- Get a representation of the timestamp in <hh:mm:ss> format.
--- @return {string} The timestamp in <hh:mm:ss> format.
+-- Gets a representation of the timestamp in <hh:mm:ss> format.
 function Timestamp:to_string()
 	return self.text:sub(1, -5)
 end
 
--- Get a representation of the timestamp in microseconds.
--- @return {number} The timestamp in microseconds.
+-- Gets a representation of the timestamp in microseconds.
 function Timestamp:to_microseconds()
 	return self.microseconds
 end
 
--- Add a number of microseconds to a timestamp. Returns a new instance.
--- @param microseconds {number} The number of microseconds to add; can be negative.
--- @return {Timestamp} The resulting new timestamp instance.
-
+-- Adds a number of microseconds to a timestamp. Returns a new instance.
 function Timestamp:add_microseconds(microseconds)
 	local result_microseconds = self.microseconds + microseconds
 	return Timestamp.of_microseconds(result_microseconds)
 end
 
 -- Compares this timestamp to the given timestamp.
--- @param t {Timestamp} The timestamp to compare to.
--- @return {number} A negative number if this is lower than `t`, a positive number if this is greater than `t`, zero if both are equal.
 function Timestamp:compare_to(t)
 	if (self.microseconds < t.microseconds) then
 		return -1
@@ -1063,58 +1044,55 @@ function Timestamp:compare_to(t)
 end
 
 -- Checks whether a timestamp is within the bounds of the video length or not.
--- @return {boolean} `true` if is greater than 0 and lower than the video length, `false` otherwise.
 function Timestamp:is_in_video_bounds(video_length_microseconds)
 	return ((self.microseconds >= 0) and (self.microseconds <= video_length_microseconds))
 end
 
 ---------- Utility functions ----------
 
-function VLC_intf_settings()
-	local VLC_extraintf = vlc.config.get("extraintf") -- enabled VLC interfaces
-	local VLC_luaintf = vlc.config.get("lua-intf") -- Lua Interface script name
-	local t={}
-	local ti=false
-	if VLC_extraintf then
-		t=split_string(VLC_extraintf, ":")
-		for i,v in ipairs(t) do
-			if v=="luaintf" then
-				ti=i
-				break
-			end
+-- Builds the runseq string to be put in bookmark10
+function Serialize(t)
+	if type(t)=="table" then
+		local s='{'
+		for k,v in pairs(t) do
+			if type(k)~='number' then k='"'..k..'"' end
+			s = s..'['..k..']='..Serialize(v)..',' -- recursion
 		end
+		return s..'}'
+	elseif type(t)=="string" then
+		return string.format("%q", t)
+	else
+		return tostring(t)
 	end
-	return VLC_extraintf, VLC_luaintf, t, ti
 end
 
-function split_string(s, d) -- string, delimiter pattern
+-- Transforms the list of intf into a table
+function split_string(s, d)
 	local t={}
 	local i=1
 	local ss, j, k
-	local b=false
-	while true do
+	local b=true
+	while b do
 		j,k = string.find(s,d,i)
 		if j then
 			ss=string.sub(s,i,j-1)
 			i=k+1
 		else
 			ss=string.sub(s,i)
-			b=true
+			b=false
 		end
 		table.insert(t, ss)
-		if b then break end
 	end
 	return t
 end
 
-function blank(string)
+-- Returns a hidden "underscored" string of the same size as the argument
+function hide_string(string)
 	output, _ = string.gsub(string,".","_")
 	return output
 end
 
--- Check if a string is a blank string (empty or only blanks).
--- @param s {string} The string to check.
--- @return {boolean} `true` if the string is a blank string, `false` otherwise.
+-- Checks if a string is a blank string (empty or only blanks).
 function is_blank(s)
 	if (s:find("^%s*$")) then
 		return true
@@ -1123,46 +1101,33 @@ function is_blank(s)
 	return false
 end
 
+-- Converts or keeps to UTF-8
+-- Should work for all ISO_8859-1 characters existing in UTF-8
 function decode(line,local_encoding)
-    local output_string=""
-    local error=0
-    if (line) then
-        if local_encoding=="ISO_8859-1" or local_encoding=="ISO_8859-1-SIG" then
-            for letter in line:gmatch("(.)") do
-                if string.byte(letter)>255 then
-                    output_string = output_string .. letter
-                elseif string.byte(letter)>127 and string.byte(letter)< 256 then
-                    --print(byteuni_from_byteiso(string.byte(letter)))
-                    output_string=output_string .. string.char(byteuni_from_byteiso(string.byte(letter)))
-                elseif (string.byte(letter,1)) then
-                    output_string = output_string .. letter
-                else 
-                    error=1
-                end
-            end
-        else
-            output_string = line
-        end	
-    elseif (line) then
+	local output_string=""
+	local error=0
+	if (local_encoding=="ISO_8859-1" or local_encoding=="ISO_8859-1-SIG") and (line) then
+		for letter in line:gmatch("(.)") do
+			if string.byte(letter)>255 then
+				output_string = output_string .. letter --no conversion supported
+			elseif string.byte(letter)>127 and string.byte(letter)< 256 then
+				local equivalent_byteuni={byteuni_from_byteiso(string.byte(letter))}
+				if (string.char(equivalent_byteuni[1],equivalent_byteuni[2])) then
+					output_string=output_string .. string.char(equivalent_byteuni[1],equivalent_byteuni[2])
+				else
+					output_string = output_string .. letter --no conversion supported
+				end
+			elseif (string.byte(letter,1)) then
+				output_string = output_string .. letter --no conversion needed
+			end
+		end
+	elseif (line) then
 		output_string = line
-	end
+	end	
 	return output_string
 end
 
---[[function decode(line,local_encoding)
-	local string
-	if (is_unix_os()) and (line) then
-		if local_encoding=="ISO_8859-1" then
-			string = vlc.strings.from_charset(local_encoding,line)
-		else
-			string = line
-		end	
-	elseif (line) then
-		string = line
-	end
-	return string
-end]]
-
+--Removes the 3 first bytes of the first line of UTF-8/ISO_8859-1 signed file
 function remove_charset_signature(line,local_encoding,line_index_srt)
 	if local_encoding=="UTF-8-SIG" or local_encoding=="ISO_8859-1-SIG" then
 		if line_index_srt==1 then
@@ -1177,18 +1142,15 @@ function remove_charset_signature(line,local_encoding,line_index_srt)
 end
 
 -- Check if the current operating system is Unix-like.
--- @return {boolean} `true` if the operating system is Unix-like, `false` otherwise.
 function is_unix_os()
 	if (vlc.config.homedir():find("^/")) then
 		return true
+	else
+		return false
 	end
-
-	return false
 end
 
 -- Get the list of filenames inside a given directory.
--- @param path {string} The directory path separated by slashes. Ex. "directory1/directory2/".
--- @return {array} The array of file names inside the directory, `nil` if the files listing could not be retrieved.
 function list_directory(directory)
 	local filenames = {}
 
@@ -1213,8 +1175,6 @@ function list_directory(directory)
 end
 
 -- Get the playing video directory and filename.
--- @return {string} The absolute directory path where the file is located (separated by slashes and without root slash).
--- @return {string} The name of the video file.
 function get_video_file_location()
 	local is_movie_opened=vlc.input.item()
 	if (not is_movie_opened) then
@@ -1226,32 +1186,34 @@ function get_video_file_location()
 	end
 end
 
+-- Converts the ISO_8859-1 bytes between 128 and 255 to the equivalent bytes (same character in UTF-8)
 function byteuni_from_byteiso(n)
-    local table = {{128, 194, 128},{129, 194, 129},{130, 194, 130},{131, 194, 131},{132, 194, 132},
-{133, 194, 133},{134, 194, 134},{135, 194, 135},{136, 194, 136},{137, 194, 137},
-{138, 194, 138},{139, 194, 139},{140, 194, 140},{141, 194, 141},{142, 194, 142},
-{143, 194, 143},{144, 194, 144},{145, 194, 145},{146, 194, 146},{147, 194, 147},
-{148, 194, 148},{149, 194, 149},{150, 194, 150},{151, 194, 151},{152, 194, 152},
-{153, 194, 153},{154, 194, 154},{155, 194, 155},{156, 194, 156},{157, 194, 157},
-{158, 194, 158},{159, 194, 159},{160, 194, 160},{161, 194, 161},{162, 194, 162},
-{163, 194, 163},{164, 194, 164},{165, 194, 165},{166, 194, 166},{167, 194, 167},
-{168, 194, 168},{169, 194, 169},{170, 194, 170},{171, 194, 171},{172, 194, 172},
-{173, 194, 173},{174, 194, 174},{175, 194, 175},{176, 194, 176},{177, 194, 177},
-{178, 194, 178},{179, 194, 179},{180, 194, 180},{181, 194, 181},{182, 194, 182},
-{183, 194, 183},{184, 194, 184},{185, 194, 185},{186, 194, 186},{187, 194, 187},
-{188, 194, 188},{189, 194, 189},{190, 194, 190},{191, 194, 191},{192, 195, 128},
-{193, 195, 129},{194, 195, 130},{195, 195, 131},{196, 195, 132},{197, 195, 133},
-{198, 195, 134},{199, 195, 135},{200, 195, 136},{201, 195, 137},{202, 195, 138},
-{203, 195, 139},{204, 195, 140},{205, 195, 141},{206, 195, 142},{207, 195, 143},
-{208, 195, 144},{209, 195, 145},{210, 195, 146},{211, 195, 147},{212, 195, 148},
-{213, 195, 149},{214, 195, 150},{215, 195, 151},{216, 195, 152},{217, 195, 153},
-{218, 195, 154},{219, 195, 155},{220, 195, 156},{221, 195, 157},{222, 195, 158},
-{223, 195, 159},{224, 195, 160},{225, 195, 161},{226, 195, 162},{227, 195, 163},
-{228, 195, 164},{229, 195, 165},{230, 195, 166},{231, 195, 167},{232, 195, 168},
-{233, 195, 169},{234, 195, 170},{235, 195, 171},{236, 195, 172},{237, 195, 173},
-{238, 195, 174},{239, 195, 175},{240, 195, 176},{241, 195, 177},{242, 195, 178},
-{243, 195, 179},{244, 195, 180},{245, 195, 181},{246, 195, 182},{247, 195, 183},
-{248, 195, 184},{249, 195, 185},{250, 195, 186},{251, 195, 187},{252, 195, 188},
-{253, 195, 189},{254, 195, 190},{255, 195, 191}}
-    return table[n-127][2], table[n-127][3]
+	local table = {{128, 194, 128},{129, 194, 129},{130, 194, 130},{131, 194, 131},{132, 194, 132},
+	{133, 194, 133},{134, 194, 134},{135, 194, 135},{136, 194, 136},{137, 194, 137},
+	{138, 194, 138},{139, 194, 139},{140, 194, 140},{141, 194, 141},{142, 194, 142},
+	{143, 194, 143},{144, 194, 144},{145, 194, 145},{146, 194, 146},{147, 194, 147},
+	{148, 194, 148},{149, 194, 149},{150, 194, 150},{151, 194, 151},{152, 194, 152},
+	{153, 194, 153},{154, 194, 154},{155, 194, 155},{156, 194, 156},{157, 194, 157},
+	{158, 194, 158},{159, 194, 159},{160, 194, 160},{161, 194, 161},{162, 194, 162},
+	{163, 194, 163},{164, 194, 164},{165, 194, 165},{166, 194, 166},{167, 194, 167},
+	{168, 194, 168},{169, 194, 169},{170, 194, 170},{171, 194, 171},{172, 194, 172},
+	{173, 194, 173},{174, 194, 174},{175, 194, 175},{176, 194, 176},{177, 194, 177},
+	{178, 194, 178},{179, 194, 179},{180, 194, 180},{181, 194, 181},{182, 194, 182},
+	{183, 194, 183},{184, 194, 184},{185, 194, 185},{186, 194, 186},{187, 194, 187},
+	{188, 194, 188},{189, 194, 189},{190, 194, 190},{191, 194, 191},{192, 195, 128},
+	{193, 195, 129},{194, 195, 130},{195, 195, 131},{196, 195, 132},{197, 195, 133},
+	{198, 195, 134},{199, 195, 135},{200, 195, 136},{201, 195, 137},{202, 195, 138},
+	{203, 195, 139},{204, 195, 140},{205, 195, 141},{206, 195, 142},{207, 195, 143},
+	{208, 195, 144},{209, 195, 145},{210, 195, 146},{211, 195, 147},{212, 195, 148},
+	{213, 195, 149},{214, 195, 150},{215, 195, 151},{216, 195, 152},{217, 195, 153},
+	{218, 195, 154},{219, 195, 155},{220, 195, 156},{221, 195, 157},{222, 195, 158},
+	{223, 195, 159},{224, 195, 160},{225, 195, 161},{226, 195, 162},{227, 195, 163},
+	{228, 195, 164},{229, 195, 165},{230, 195, 166},{231, 195, 167},{232, 195, 168},
+	{233, 195, 169},{234, 195, 170},{235, 195, 171},{236, 195, 172},{237, 195, 173},
+	{238, 195, 174},{239, 195, 175},{240, 195, 176},{241, 195, 177},{242, 195, 178},
+	{243, 195, 179},{244, 195, 180},{245, 195, 181},{246, 195, 182},{247, 195, 183},
+	{248, 195, 184},{249, 195, 185},{250, 195, 186},{251, 195, 187},{252, 195, 188},
+	{253, 195, 189},{254, 195, 190},{255, 195, 191}}
+	
+	return table[n-127][2], table[n-127][3]
 end
