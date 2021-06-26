@@ -1,6 +1,7 @@
-![Alt text](img/Perroquet_Subs_for_VLC_3.png)
+
 
 # Perroquet Subtitles for VLC
+![Alt text](img/Perroquet_Subs_for_VLC_3.png | width=100)
 
 Train your listening comprehension by rewriting your favorite movies' subs (with correction)
 
