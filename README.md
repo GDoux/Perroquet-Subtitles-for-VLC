@@ -147,14 +147,12 @@ This project is licensed under the GNU GPL v3 License - see the LICENSE.md file 
 
 ## Acknowledgments
 
-Inspiration :
-* Perroquet Team and Fred Bertolus for the original software Perroquet (https://launchpad.net/perroquet)
+* Inspiration :
+    * Perroquet Team and Fred Bertolus for the original software Perroquet (https://launchpad.net/perroquet)
 
-Code snippet :
-* The `Perroquet.lua` script was adapted from the "Subtitle Word Search" add-on by Tomás Crespo (https://github.com/tcrespog/vlc-subtitle-word-search/)
-* The `Time v3.2` script by Mederi was adapted for the version 1.1 (https://addons.videolan.org/p/1154032/)
+* Code snippet :
+    * The `Perroquet.lua` script was adapted from the "Subtitle Word Search" add-on by Tomás Crespo (https://github.com/tcrespog/vlc-subtitle-word-search/)
+    * The `Time v3.2` script by Mederi was adapted for the version 1.1 (https://addons.videolan.org/p/1154032/)
 
-Other:
-* DomPizzie for the Simple README template (https://gist.github.com/DomPizzie/7a5ff55ffa9081f2de27c315f5018afc)
-
-
+* Other:
+    * DomPizzie for the Simple README template (https://gist.github.com/DomPizzie/7a5ff55ffa9081f2de27c315f5018afc)
