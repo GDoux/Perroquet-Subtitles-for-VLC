@@ -30,7 +30,7 @@ Improve your listening and writing abilities in many languages and on a very lar
 ##### <strong>V1.1
 Tested with:
   * VLC 3.0.14 Vetinari for Linux Ubuntu 18.04
-  * VLC 3.0.16 Vetineri for Windows</strong>
+  * VLC 3.0.16 Vetinari for Windows</strong>
 
 ##### V1.0:
 Tested with:
@@ -89,8 +89,8 @@ Then you should be able to do the following
 6) If you are stuck, click on `Help!`
 
 *Notes: 
- *files like "MOVIE_FILE[ANY_CHARACTERS].perroquet.srt" are also accepted but you may have to deactivate the sub tracks in VLC interface.
- *you can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window*
+    *files like "MOVIE_FILE[ANY_CHARACTERS].perroquet.srt" are also accepted but you may have to deactivate the sub tracks in VLC interface.
+    *you can use the `Tab`, `Shift+Tab` and `Enter` to navigate within the Perroquet Subtitles for VLC window*
  
 ## Help
 
